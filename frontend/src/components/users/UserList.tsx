@@ -1,5 +1,8 @@
+/* eslint-disable no-useless-catch */
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Box, Button, Alert, CircularProgress, Typography } from '@mui/material';
+import { Add, Refresh } from '@mui/icons-material';
 import type { RootState, AppDispatch } from '../../store';
 import { fetchUsers, createUser, clearError } from '../../store/userSlice';
 import { useAuth } from '../../hooks/useAuth';
@@ -7,7 +10,6 @@ import { USER_ROLES } from '../../utils/constants';
 import type { CreateUserData } from '../../types/user.types';
 import UserForm from './UserForm';
 import UserTable from './UserTable';
-import './UserList.css';
 
 /**
  * UserList component - Displays user table with role and status
@@ -27,6 +29,13 @@ export default function UserList() {
     }
   }, [dispatch, user?.role]);
 
+  /**
+   * Handle refresh button click
+   */
+  const handleRefresh = () => {
+    dispatch(fetchUsers());
+  };
+  
   /**
    * Handle user creation
    */
@@ -52,48 +61,61 @@ export default function UserList() {
   // Check if user has admin access
   if (!user) {
     return (
-      <div className="user-list-container">
-        <div className="access-denied">
-          <p>Loading user information...</p>
-        </div>
-      </div>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+        <CircularProgress />
+      </Box>
     );
   }
 
   if (user.role !== USER_ROLES.ADMIN) {
     return (
-      <div className="user-list-container">
-        <div className="access-denied">
-          <h2>Access Denied</h2>
-          <p>Admin role required to access user management.</p>
-        </div>
-      </div>
+      <Box sx={{ textAlign: 'center', py: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Access Denied
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Admin role required to access user management.
+        </Typography>
+      </Box>
     );
   }
 
   return (
-    <div className="user-list-container">
-      <div className="user-list-header">
-        <h1>User Management</h1>
-        <button
-          className="btn-primary"
-          onClick={() => setShowAddUserForm(true)}
-          disabled={loading}
-        >
-          Add User
-        </button>
-      </div>
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          Users
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            variant="outlined"
+            startIcon={<Refresh />}
+            onClick={handleRefresh}
+            disabled={loading}
+          >
+            Refresh
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            onClick={() => setShowAddUserForm(true)}
+            disabled={loading}
+          >
+            Add User
+          </Button>
+        </Box>
+      </Box>
 
       {error && (
-        <div className="error-message">
-          <p>{error}</p>
-        </div>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
       )}
 
       {loading && users.length === 0 && !error ? (
-        <div className="loading-state">
-          <p>Loading users...</p>
-        </div>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <CircularProgress />
+        </Box>
       ) : (
         <UserTable users={users} loading={loading} />
       )}
@@ -101,6 +123,6 @@ export default function UserList() {
       {showAddUserForm && (
         <UserForm onSubmit={handleCreateUser} onCancel={handleCancelForm} />
       )}
-    </div>
+    </Box>
   );
 }

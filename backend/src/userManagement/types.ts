@@ -53,7 +53,12 @@ export interface UpdateUserRoleRequest {
  */
 export interface APIGatewayEvent {
   body: string | null;
+  headers?: { [key: string]: string };
   pathParameters: { [key: string]: string } | null;
+  httpMethod?: string;
+  resource?: string;
+  path?: string;
+  routeKey?: string;
   requestContext: {
     authorizer: {
       claims: {
@@ -63,6 +68,11 @@ export interface APIGatewayEvent {
         'custom:role': string;
       };
     };
+    http?: {
+      method: string;
+    };
+    httpMethod?: string;
+    resourcePath?: string;
   };
 }
 
@@ -88,9 +98,11 @@ export interface ErrorResponse {
  * Success response for user creation
  */
 export interface CreateUserResponse {
-  userId: string;
+  user_id: string;
   email: string;
   role: string;
+  status: 'Active' | 'Inactive' | 'Deleted';
+  created_at: string;
 }
 
 /**

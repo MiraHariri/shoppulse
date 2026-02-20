@@ -13,10 +13,6 @@ export const useAuth = () => {
     (state: RootState) => state.auth
   );
   
-  useEffect(() => {
-    dispatch(checkAuth());
-  }, [dispatch]);
-  
   const handleLogin = async (credentials: LoginCredentials) => {
     await dispatch(login(credentials)).unwrap();
   };
@@ -45,4 +41,15 @@ export const useAuth = () => {
     clearPasswordChangeState: handleClearPasswordChangeState,
     isAuthenticated: !!user,
   };
+};
+
+/**
+ * Hook to initialize auth check - should only be used once at app level
+ */
+export const useAuthInit = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
 };

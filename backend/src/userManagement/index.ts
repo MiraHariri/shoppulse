@@ -19,12 +19,38 @@ import {
 export async function handler(event: APIGatewayEvent): Promise<LambdaResponse> {
   console.log('Received event:', JSON.stringify(event, null, 2));
 
-  const httpMethod = event.requestContext?.authorizer ? 
-    (event as any).httpMethod || (event as any).requestContext?.http?.method : 
-    'UNKNOWN';
-  const path = (event as any).resource || (event as any).routeKey || '';
-
   try {
+    // Extract HTTP method - handle both REST API and HTTP API formats
+    const httpMethod = event.httpMethod || 
+                      event.requestContext?.http?.method || 
+                      event.requestContext?.httpMethod ||
+                      'UNKNOWN';
+    
+    // Extract path - handle both REST API and HTTP API formats
+    const path = event.resource || 
+                event.requestContext?.resourcePath ||
+                event.routeKey || 
+                event.path ||
+                '';
+
+    console.log(`Routing request: ${httpMethod} ${path}`);
+
+    // Validate that we have a valid method and path
+    if (httpMethod === 'UNKNOWN' || !path) {
+      console.error('Unable to determine HTTP method or path from event');
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ 
+          error: 'Invalid request format',
+          details: 'Unable to determine HTTP method or path'
+        }),
+      };
+    }
+
     // Route based on HTTP method and path
     if (httpMethod === 'GET' && path === '/users') {
       return await listUsers(event);
@@ -47,23 +73,34 @@ export async function handler(event: APIGatewayEvent): Promise<LambdaResponse> {
     }
 
     // Unknown route
+    console.warn(`Route not found: ${httpMethod} ${path}`);
     return {
       statusCode: 404,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify({ error: 'Route not found' }),
+      body: JSON.stringify({ 
+        error: 'Route not found',
+        method: httpMethod,
+        path: path
+      }),
     };
   } catch (error: any) {
     console.error('Unhandled error in Lambda handler:', error);
+    console.error('Error stack:', error.stack);
+    
     return {
       statusCode: 500,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify({ error: 'Internal server error', retryable: true }),
+      body: JSON.stringify({ 
+        error: 'Internal server error', 
+        message: error.message,
+        retryable: true 
+      }),
     };
   }
 }

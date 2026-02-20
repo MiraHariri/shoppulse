@@ -1,5 +1,5 @@
-import { useState, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, type FormEvent } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   Card,
@@ -23,16 +23,24 @@ export default function LoginForm() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
-  const { login, changePassword, error, loading, requiresPasswordChange } = useAuth();
+  const { user, login, changePassword, error, loading, requiresPasswordChange } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Redirect authenticated users away from login page
+  useEffect(() => {
+    if (user && !requiresPasswordChange) {
+      // Get the intended destination from location state, or default to dashboard
+      const from = (location.state as { from?: string })?.from || '/dashboard';
+      navigate(from, { replace: true });
+    }
+  }, [user, requiresPasswordChange, navigate, location]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
       await login({ email, password });
-      if (!requiresPasswordChange) {
-        navigate('/dashboard');
-      }
+      // Navigation will be handled by useEffect after successful login
     } catch (err) {
       // Error is handled by the auth slice
     }
@@ -56,7 +64,7 @@ export default function LoginForm() {
 
     try {
       await changePassword({ newPassword });
-      navigate('/dashboard');
+      // Navigation will be handled by useEffect after successful password change
     } catch (err) {
       // Error is handled by the auth slice
     }

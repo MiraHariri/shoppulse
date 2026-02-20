@@ -1,7 +1,20 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  MenuItem,
+  IconButton,
+  InputAdornment,
+  Box,
+  Typography,
+} from '@mui/material';
+import { Close, Visibility, VisibilityOff } from '@mui/icons-material';
 import type { CreateUserData } from '../../types/user.types';
 import { USER_ROLES } from '../../utils/constants';
-import './UserForm.css';
 
 interface UserFormProps {
   onSubmit: (userData: CreateUserData) => Promise<void>;
@@ -32,6 +45,14 @@ export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
   }>({});
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  /**
+   * Toggle password visibility
+   */
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   /**
    * Validate email format
@@ -74,7 +95,7 @@ export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
    * Handle input field changes
    */
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -131,105 +152,114 @@ export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
   };
 
   return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Add New User</h2>
-          <button
-            type="button"
-            className="close-button"
-            onClick={onCancel}
-            aria-label="Close"
-          >
-            ×
-          </button>
-        </div>
+    <Dialog
+      open={true}
+      onClose={onCancel}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 2,
+        }
+      }}
+    >
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
+        <Typography variant="h5" component="div" sx={{ fontWeight: 600 }}>
+          Add New User
+        </Typography>
+        <IconButton
+          aria-label="close"
+          onClick={onCancel}
+          sx={{
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <Close />
+        </IconButton>
+      </DialogTitle>
 
-        <form onSubmit={handleSubmit} className="user-form">
-          <div className="form-group">
-            <label htmlFor="email">
-              Email <span className="required">*</span>
-            </label>
-            <input
+      <form onSubmit={handleSubmit}>
+        <DialogContent dividers>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              fullWidth
+              label="Email"
               type="email"
-              id="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={errors.email ? 'input-error' : ''}
-              placeholder="user@example.com"
+              error={!!errors.email}
+              helperText={errors.email}
               disabled={isSubmitting}
               autoComplete="email"
+              autoFocus
+              required
             />
-            {errors.email && (
-              <span className="error-text">{errors.email}</span>
-            )}
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="password">
-              Password <span className="required">*</span>
-            </label>
-            <input
-              type="password"
-              id="password"
+            <TextField
+              fullWidth
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={errors.password ? 'input-error' : ''}
-              placeholder="Min 8 chars, uppercase, lowercase, numbers"
+              error={!!errors.password}
+              helperText={errors.password || 'Min 8 chars with uppercase, lowercase, and numbers'}
               disabled={isSubmitting}
               autoComplete="new-password"
+              required
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={togglePasswordVisibility}
+                      edge="end"
+                      disabled={isSubmitting}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
-            {errors.password && (
-              <span className="error-text">{errors.password}</span>
-            )}
-            <small className="help-text">
-              Password must be at least 8 characters and include uppercase,
-              lowercase, and numbers
-            </small>
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="role">
-              Role <span className="required">*</span>
-            </label>
-            <select
-              id="role"
+            <TextField
+              fullWidth
+              select
+              label="Role"
               name="role"
               value={formData.role}
               onChange={handleChange}
               disabled={isSubmitting}
+              helperText="Select the role that determines dashboard access permissions"
+              required
             >
-              <option value={USER_ROLES.FINANCE}>Finance</option>
-              <option value={USER_ROLES.OPERATIONS}>Operations</option>
-              <option value={USER_ROLES.MARKETING}>Marketing</option>
-              <option value={USER_ROLES.ADMIN}>Admin</option>
-            </select>
-            <small className="help-text">
-              Select the role that determines dashboard access permissions
-            </small>
-          </div>
+              <MenuItem value={USER_ROLES.FINANCE}>Finance</MenuItem>
+              <MenuItem value={USER_ROLES.OPERATIONS}>Operations</MenuItem>
+              <MenuItem value={USER_ROLES.MARKETING}>Marketing</MenuItem>
+              <MenuItem value={USER_ROLES.ADMIN}>Admin</MenuItem>
+            </TextField>
+          </Box>
+        </DialogContent>
 
-          <div className="form-actions">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={onCancel}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Creating...' : 'Create User'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button
+            onClick={onCancel}
+            disabled={isSubmitting}
+            color="inherit"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Creating...' : 'Create User'}
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 }

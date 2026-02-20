@@ -23,7 +23,6 @@ provider:
     RDS_PASSWORD: ${env:RDS_PASSWORD}
     QUICKSIGHT_AWS_ACCOUNT_ID: ${env:QUICKSIGHT_AWS_ACCOUNT_ID, ''}
     QUICKSIGHT_DASHBOARD_ID: ${env:QUICKSIGHT_DASHBOARD_ID, ''}
-    AWS_REGION: ${opt:region, 'us-east-1'}
   
   # POC: Lambda runs without VPC for simplicity
   # VPC configuration commented out - RDS has public access enabled for POC
@@ -63,10 +62,14 @@ package:
   individually: false
   patterns:
     - '!src/**'
-    - '!node_modules/**'
+    - '!test/**'
+    - '!tests/**'
+    - '!*.md'
+    - '!.env*'
+    - '!tsconfig.json'
     - 'dist/**'
-    - 'node_modules/pg/**'
-    - 'node_modules/@aws-sdk/**'
+    - 'node_modules/**'
+    - '!node_modules/aws-sdk/**'
 
 functions:
   # User Management Lambda
@@ -89,21 +92,6 @@ functions:
 
 # CloudFormation resources
 resources:
-  Resources:
-    # CloudWatch Log Group - User Management
-    UserManagementLogGroup:
-      Type: AWS::Logs::LogGroup
-      Properties:
-        LogGroupName: /aws/lambda/${self:provider.stage}-shoppulse-user-management
-        RetentionInDays: 14
-
-    # CloudWatch Log Group - QuickSight Embed
-    QuickSightEmbedLogGroup:
-      Type: AWS::Logs::LogGroup
-      Properties:
-        LogGroupName: /aws/lambda/${self:provider.stage}-shoppulse-quicksight-embed
-        RetentionInDays: 14
-
   Outputs:
     UserManagementLambdaArn:
       Description: User Management Lambda Function ARN

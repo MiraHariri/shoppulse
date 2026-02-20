@@ -7,7 +7,7 @@ import { API_BASE_URL } from './constants';
 async function getAuthHeaders(): Promise<HeadersInit> {
   try {
     const session = await fetchAuthSession();
-    const token = session.tokens?.accessToken?.toString();
+    const token = session.tokens?.idToken?.toString();
     
     if (!token) {
       throw new Error('No access token available');

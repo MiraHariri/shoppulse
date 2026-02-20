@@ -1,5 +1,5 @@
 import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Box, Divider } from '@mui/material';
-import { Dashboard, People, Settings } from '@mui/icons-material';
+import { Dashboard } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -15,18 +15,6 @@ export default function Sidebar() {
       text: 'Dashboard',
       icon: <Dashboard />,
       path: '/dashboard',
-      roles: ['Admin', 'Finance', 'Operations', 'Marketing']
-    },
-    {
-      text: 'Users',
-      icon: <People />,
-      path: '/users',
-      roles: ['Admin']
-    },
-    {
-      text: 'Settings',
-      icon: <Settings />,
-      path: '/settings',
       roles: ['Admin', 'Finance', 'Operations', 'Marketing']
     }
   ];

@@ -1,15 +1,14 @@
 import { Box, Typography, Paper } from '@mui/material';
-import UserList from '../components/users/UserList';
 
-export default function UsersPage() {
+export default function SettingsPage() {
   return (
     <>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: 600, color: '#1F2937', mb: 1 }}>
-          User Management
+          Settings
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Manage user accounts and permissions
+          Configure application settings and preferences
         </Typography>
       </Box>
 
@@ -22,7 +21,9 @@ export default function UsersPage() {
           bgcolor: 'white',
         }}
       >
-        <UserList />
+        <Typography variant="body1" color="text.secondary">
+          Settings configuration will be implemented here.
+        </Typography>
       </Paper>
     </>
   );

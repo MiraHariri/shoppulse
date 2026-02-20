@@ -3,11 +3,14 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import { store } from './store';
 import { configureAmplify } from './config/amplify';
+import { useAuthInit } from './hooks/useAuth';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import LoginForm from './components/auth/LoginForm';
+import PublicRoute from './components/auth/PublicRoute';
 import Layout from './components/layout/Layout';
+import LoginForm from './components/auth/LoginForm';
 import DashboardPage from './pages/DashboardPage';
 import UsersPage from './pages/UsersPage';
+import SettingsPage from './pages/SettingsPage';
 
 // Configure Amplify on app initialization
 configureAmplify();
@@ -60,33 +63,48 @@ const theme = createTheme({
   },
 });
 
+function AppRoutes() {
+  useAuthInit();
+  
+  return (
+    <Routes>
+      {/* Public route - redirect authenticated users */}
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <LoginForm />
+          </PublicRoute>
+        }
+      />
+      
+      {/* Protected routes with shared layout */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/users" element={<UsersPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+      </Route>
+
+      {/* Catch-all redirect */}
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
+  );
+}
+
 function App() {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <BrowserRouter>
-          <Routes>
-            {/* Public route */}
-            <Route path="/login" element={<LoginForm />} />
-            
-            {/* Protected routes */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Layout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<DashboardPage />} />
-              <Route path="users" element={<UsersPage />} />
-            </Route>
-
-            {/* Catch-all redirect */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
+          <AppRoutes />
         </BrowserRouter>
       </ThemeProvider>
     </Provider>

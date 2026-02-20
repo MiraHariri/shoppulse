@@ -108,6 +108,7 @@
 /* Input fields */
 .form-group input[type='email'],
 .form-group input[type='password'],
+.form-group input[type='text'],
 .form-group select {
   width: 100%;
   padding: 10px 12px;
@@ -119,8 +120,45 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+/* Password input wrapper */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  padding-right: 45px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 18px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.password-toggle-btn:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
+
+.password-toggle-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .form-group input[type='email']:focus,
 .form-group input[type='password']:focus,
+.form-group input[type='text']:focus,
 .form-group select:focus {
   outline: none;
   border-color: #6366f1;
@@ -129,6 +167,7 @@
 
 .form-group input[type='email']:disabled,
 .form-group input[type='password']:disabled,
+.form-group input[type='text']:disabled,
 .form-group select:disabled {
   background-color: #f9fafb;
   cursor: not-allowed;
