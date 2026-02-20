@@ -1,0 +1,33 @@
+{
+  "name": "shoppulse-backend",
+  "version": "1.0.0",
+  "description": "ShopPulse Analytics Backend Lambda Functions",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src --ext .ts",
+    "deploy": "npm run build && serverless deploy",
+    "deploy:dev": "npm run build && serverless deploy --stage dev",
+    "deploy:staging": "npm run build && serverless deploy --stage staging",
+    "deploy:prod": "npm run build && serverless deploy --stage prod",
+    "remove": "serverless remove",
+    "logs": "serverless logs -f userManagement -t",
+    "offline": "npm run build && serverless offline"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.450.0",
+    "@aws-sdk/client-quicksight": "^3.994.0",
+    "@aws-sdk/client-secrets-manager": "^3.450.0",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/pg": "^8.10.9",
+    "serverless": "^3.40.0",
+    "serverless-dotenv-plugin": "^6.0.0",
+    "serverless-offline": "^13.9.0",
+    "typescript": "^5.3.2"
+  }
+}

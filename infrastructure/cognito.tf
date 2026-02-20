@@ -11,7 +11,7 @@ resource "aws_cognito_user_pool" "main" {
     name                = "tenant_id"
     attribute_data_type = "String"
     required            = false  # Custom attributes cannot be required
-    mutable             = false  # Immutable after creation
+    mutable             = true   # Mutable - can be changed (WARNING: reduces tenant isolation security)
 
     string_attribute_constraints {
       min_length = 1

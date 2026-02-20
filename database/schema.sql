@@ -1,5 +1,4 @@
 -- ShopPulse Analytics Database Schema
--- PostgreSQL 15+
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";

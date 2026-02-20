@@ -142,33 +142,32 @@ output "api_gateway_execution_arn" {
   value       = aws_api_gateway_rest_api.main.execution_arn
 }
 
-# Commented out until deployment and stage are created
-# output "api_gateway_invoke_url" {
-#   description = "API Gateway invoke URL"
-#   value       = aws_api_gateway_stage.main.invoke_url
-# }
-# 
-# output "api_gateway_stage_name" {
-#   description = "API Gateway stage name"
-#   value       = aws_api_gateway_stage.main.stage_name
-# }
+# API Gateway invoke URL and configuration
+output "api_gateway_invoke_url" {
+  description = "API Gateway invoke URL"
+  value       = aws_api_gateway_stage.main.invoke_url
+}
+
+output "api_gateway_stage_name" {
+  description = "API Gateway stage name"
+  value       = aws_api_gateway_stage.main.stage_name
+}
 
 output "api_gateway_authorizer_id" {
   description = "Cognito authorizer ID for API Gateway"
   value       = aws_api_gateway_authorizer.cognito.id
 }
 
-# Commented out until deployment and stage are created
-# output "api_gateway_configuration" {
-#   description = "Complete API Gateway configuration for Lambda and frontend"
-#   value = {
-#     api_id        = aws_api_gateway_rest_api.main.id
-#     api_name      = aws_api_gateway_rest_api.main.name
-#     invoke_url    = aws_api_gateway_stage.main.invoke_url
-#     stage_name    = aws_api_gateway_stage.main.stage_name
-#     authorizer_id = aws_api_gateway_authorizer.cognito.id
-#     execution_arn = aws_api_gateway_rest_api.main.execution_arn
-#     usage_plan_id = aws_api_gateway_usage_plan.main.id
-#   }
-#   sensitive = false
-# }
+output "api_gateway_configuration" {
+  description = "Complete API Gateway configuration for Lambda and frontend"
+  value = {
+    api_id        = aws_api_gateway_rest_api.main.id
+    api_name      = aws_api_gateway_rest_api.main.name
+    invoke_url    = aws_api_gateway_stage.main.invoke_url
+    stage_name    = aws_api_gateway_stage.main.stage_name
+    authorizer_id = aws_api_gateway_authorizer.cognito.id
+    execution_arn = aws_api_gateway_rest_api.main.execution_arn
+    usage_plan_id = aws_api_gateway_usage_plan.main.id
+  }
+  sensitive = false
+}

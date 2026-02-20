@@ -101,7 +101,8 @@ The design emphasizes security, scalability, and tenant isolation while providin
 ### 1. AWS Cognito User Pool
 
 **Configuration**:
-- Custom attribute: `custom:tenant_id` (string, required, mutable)
+- Custom attribute: `custom:tenant_id` (string, required, immutable)
+- Custom attribute: `custom:role` (string, required, mutable)
 - Password policy: minimum 8 characters, require uppercase, lowercase, numbers
 - Token expiration: Access token 1 hour, Refresh token 30 days
 

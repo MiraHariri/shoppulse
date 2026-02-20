@@ -1,0 +1,140 @@
+service: shoppulse-backend
+
+frameworkVersion: '3'
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+  memorySize: 512
+  timeout: 30
+  
+  # Environment variables for all functions
+  environment:
+    NODE_ENV: ${self:provider.stage}
+    COGNITO_USER_POOL_ID: ${env:COGNITO_USER_POOL_ID}
+    RDS_HOST: ${env:RDS_HOST}
+    RDS_PORT: ${env:RDS_PORT, '5432'}
+    RDS_DATABASE: ${env:RDS_DATABASE, 'shoppulse'}
+    RDS_USERNAME: ${env:RDS_USERNAME}
+    RDS_PASSWORD: ${env:RDS_PASSWORD}
+    QUICKSIGHT_AWS_ACCOUNT_ID: ${env:QUICKSIGHT_AWS_ACCOUNT_ID, ''}
+    QUICKSIGHT_DASHBOARD_ID: ${env:QUICKSIGHT_DASHBOARD_ID, ''}
+    AWS_REGION: ${opt:region, 'us-east-1'}
+  
+  # POC: Lambda runs without VPC for simplicity
+  # VPC configuration commented out - RDS has public access enabled for POC
+  # vpc:
+  #   securityGroupIds:
+  #     - ${env:LAMBDA_SECURITY_GROUP_ID}
+  #   subnetIds:
+  #     - ${env:LAMBDA_SUBNET_ID_1}
+  #     - ${env:LAMBDA_SUBNET_ID_2}
+  
+  # Use existing IAM role created by Terraform
+  iam:
+    role: ${env:USER_MANAGEMENT_LAMBDA_ROLE_ARN}
+
+  # API Gateway configuration
+  logs:
+    restApi: false  # Disable API Gateway logging setup (using existing API Gateway)
+  
+  # CORS configuration
+  httpApi:
+    cors:
+      allowedOrigins:
+        - '*'
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+        - X-Request-ID
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+
+# Package configuration
+package:
+  individually: false
+  patterns:
+    - '!src/**'
+    - '!node_modules/**'
+    - 'dist/**'
+    - 'node_modules/pg/**'
+    - 'node_modules/@aws-sdk/**'
+
+functions:
+  # User Management Lambda
+  userManagement:
+    handler: dist/userManagement/index.handler
+    name: ${self:provider.stage}-shoppulse-user-management
+    description: User management Lambda for ShopPulse Analytics
+    reservedConcurrency: 100
+    # No events - API Gateway integration will be done by Terraform
+
+  # QuickSight Embed Lambda
+  quicksightEmbed:
+    handler: dist/quicksightEmbed/index.handler
+    name: ${self:provider.stage}-shoppulse-quicksight-embed
+    description: QuickSight embed URL generation Lambda for ShopPulse Analytics
+    reservedConcurrency: 200
+    memorySize: 256
+    timeout: 15
+    # No events - API Gateway integration will be done by Terraform
+
+# CloudFormation resources
+resources:
+  Resources:
+    # CloudWatch Log Group - User Management
+    UserManagementLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /aws/lambda/${self:provider.stage}-shoppulse-user-management
+        RetentionInDays: 14
+
+    # CloudWatch Log Group - QuickSight Embed
+    QuickSightEmbedLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /aws/lambda/${self:provider.stage}-shoppulse-quicksight-embed
+        RetentionInDays: 14
+
+  Outputs:
+    UserManagementLambdaArn:
+      Description: User Management Lambda Function ARN
+      Value:
+        Fn::GetAtt:
+          - UserManagementLambdaFunction
+          - Arn
+
+    QuickSightEmbedLambdaArn:
+      Description: QuickSight Embed Lambda Function ARN
+      Value:
+        Fn::GetAtt:
+          - QuicksightEmbedLambdaFunction
+          - Arn
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+    lambdaPort: 3002
+  
+  dotenv:
+    path: .env
+    include:
+      - COGNITO_USER_POOL_ID
+      - RDS_HOST
+      - RDS_PORT
+      - RDS_DATABASE
+      - RDS_USERNAME
+      - RDS_PASSWORD
+      - USER_MANAGEMENT_LAMBDA_ROLE_ARN
