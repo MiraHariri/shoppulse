@@ -1,0 +1,71 @@
+# Terraform
+infrastructure/.terraform/
+infrastructure/.terraform.lock.hcl
+infrastructure/terraform.tfstate
+infrastructure/terraform.tfstate.backup
+infrastructure/terraform.tfstate.*.backup
+infrastructure/tfplan
+infrastructure/*.tfvars
+infrastructure/.terraform.tfstate.lock.info
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+*.env
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+*.js.map
+*.d.ts.map
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# AWS
+.aws/
+*.pem
+
+# Database
+*.sql.backup
+*.dump
+
+# Sensitive files
+*credentials*
+*secret*
+*password*
+POC_DB_CREDENTIALS.md
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
