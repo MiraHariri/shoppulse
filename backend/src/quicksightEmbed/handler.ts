@@ -12,7 +12,6 @@ import {
   APIGatewayEvent,
   LambdaResponse,
   RequestContext,
-  GovernanceRule,
   SessionTag,
   ErrorResponse,
   EmbedUrlResponse,
@@ -117,46 +116,41 @@ function errorResponse(
 }
 
 /**
- * Retrieves governance rules for a user from PostgreSQL
+ * Retrieves user data including region and store_id from PostgreSQL
  */
-async function getGovernanceRules(
+async function getUserData(
   tenantId: string,
   userId: string,
-): Promise<GovernanceRule[]> {
-  const result = await query<{ dimension: string; values: string[] }>(
-    "SELECT dimension, values FROM governance_rules WHERE tenant_id = $1 AND user_id = $2",
+): Promise<{ region: string | null; store_id: string | null }> {
+  const result = await query<{ region: string | null; store_id: string | null }>(
+    "SELECT region, store_id FROM users WHERE tenant_id = $1 AND cognito_user_id = $2",
     [tenantId, userId],
   );
 
-  return result.rows.map((row) => ({
-    dimension: row.dimension,
-    values: row.values,
-  }));
+  if (result.rows.length === 0) {
+    console.warn(`User not found in database: tenant_id=${tenantId}, cognito_user_id=${userId}`);
+    return { region: null, store_id: null };
+  }
+
+  return result.rows[0];
 }
 
 /**
- * Builds session tags from tenant context, user role, and governance rules
+ * Builds session tags from tenant context and user data
  * Used for anonymous embedding with RLS
+ * Includes: tenant_id, region (from user), store_id (from user)
+ * Note: userRole is passed as a URL parameter, not a session tag
  */
 function buildSessionTags(
   tenantId: string,
-  userRole: string,
-  governanceRules: GovernanceRule[],
+  region: string | null,
+  storeId: string | null,
 ): SessionTag[] {
-  const sessionTags: SessionTag[] = [
+  return [
     { Key: "tenant_id", Value: tenantId },
-    { Key: "userRole", Value: userRole },
+    { Key: "region", Value: region || "none" },
+    { Key: "store_id", Value: storeId || "*" },
   ];
-
-  // Add governance dimension tags
-  for (const rule of governanceRules) {
-    sessionTags.push({
-      Key: rule.dimension,
-      Value: rule.values.join(","),
-    });
-  }
-
-  return sessionTags;
 }
 
 /**
@@ -180,28 +174,25 @@ export async function generateEmbedUrl(
 
     const context = getRequestContext(event);
 
-    // Retrieve governance rules from PostgreSQL
-    const governanceRules = await getGovernanceRules(
-      context.tenantId,
-      context.userId,
-    );
+    // Retrieve user data (region and store_id) from users table
+    const userData = await getUserData(context.tenantId, context.userId);
     console.log(
-      `Retrieved ${governanceRules.length} governance rules for user ${context.userId}`,
+      `Retrieved user data: region=${userData.region}, store_id=${userData.store_id}`,
     );
 
-    // Build session tags (tenant_id, userRole, governance rules)
+    // Build session tags (tenant_id, region, store_id from user table)
     const sessionTags = buildSessionTags(
       context.tenantId,
-      context.userRole,
-      governanceRules,
+      userData.region,
+      userData.store_id,
     );
     console.log(
-      "Session tags (tenant_id, userRole, governance rules):",
+      "Session tags (tenant_id, region, store_id):",
       JSON.stringify(sessionTags),
     );
 
-    // Generate anonymous embed URL
-    const embedUrl = await generateAnonymousEmbedUrl(sessionTags);
+    // Generate anonymous embed URL with userRole as parameter
+    const embedUrl = await generateAnonymousEmbedUrl(sessionTags, context.userRole);
 
     const embedResponse: EmbedUrlResponse = {
       embedUrl: embedUrl,
@@ -243,6 +234,7 @@ export async function generateEmbedUrl(
  */
 async function generateAnonymousEmbedUrl(
   sessionTags: SessionTag[],
+  userRole: string,
 ): Promise<string> {
   if (!QUICKSIGHT_AWS_ACCOUNT_ID || !QUICKSIGHT_DASHBOARD_ID) {
     throw new Error("QuickSight configuration missing");
@@ -264,6 +256,7 @@ async function generateAnonymousEmbedUrl(
   });
 
   console.log("Generating anonymous embed URL with session tags for RLS");
+  console.log("userRole:", userRole);
 
   const response = await quicksightClient.send(command);
 
