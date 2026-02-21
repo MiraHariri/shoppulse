@@ -23,7 +23,6 @@ provider:
     RDS_PASSWORD: ${env:RDS_PASSWORD}
     QUICKSIGHT_AWS_ACCOUNT_ID: ${env:QUICKSIGHT_AWS_ACCOUNT_ID, ''}
     QUICKSIGHT_DASHBOARD_ID: ${env:QUICKSIGHT_DASHBOARD_ID, ''}
-    USE_ANONYMOUS_EMBEDDING: ${env:USE_ANONYMOUS_EMBEDDING, 'false'}
   
   # POC: Lambda runs without VPC for simplicity
   # VPC configuration commented out - RDS has public access enabled for POC

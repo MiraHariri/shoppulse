@@ -52,15 +52,26 @@ Set `USE_ANONYMOUS_EMBEDDING` in `.env` file:
 - **role**: User's role from Cognito
 - **governance_rules**: Retrieved from PostgreSQL database
 
-### Session Tags Built
+### Session Context Passing
+
+#### Anonymous Embedding (Session Tags)
+Session tags are passed directly in the API call:
 ```javascript
-[
+SessionTags: [
   { Key: "tenant_id", Value: "T001" },
   { Key: "role", Value: "Finance" },
   { Key: "region", Value: "North,South" },  // from governance rules
   { Key: "store_id", Value: "S001,S002" }   // from governance rules
 ]
 ```
+Use in dataset: `${tag:tenant_id}`, `${tag:role}`
+
+#### Registered User Embedding (URL Parameters)
+Session parameters are appended to the embed URL:
+```
+?p.tenant_id=T001&p.role=Finance&p.region=North,South
+```
+Use in dashboard: Create parameters and reference as `${tenant_id}`, `${role}`
 
 ## Configuration
 
@@ -128,29 +139,51 @@ npm run deploy
 
 ### For Anonymous Embedding
 - RLS is handled via session tags automatically
-- No additional configuration needed in QuickSight
+- Configure in dataset Row-level security:
+  ```
+  ${tag:tenant_id} = tenant_id_column
+  ${tag:role} = role_column
+  ```
+- No additional configuration needed in dashboard
 
 ### For Registered User Embedding
-You need to configure RLS in the QuickSight dataset:
-1. Open the dataset in QuickSight
-2. Go to "Row-level security"
-3. Create rules based on:
-   - Username (contains tenant info: `cognito-{email}`)
-   - User attributes (if configured)
-   - Or use dataset parameters
+You need to configure parameters in the QuickSight dashboard:
+
+1. Open the dashboard in QuickSight
+2. Click "Parameters" in the left panel
+3. Create parameters:
+   - Name: `tenant_id`, Type: String
+   - Name: `role`, Type: String
+   - Name: `region`, Type: String (if using governance rules)
+   - Name: `store_id`, Type: String (if using governance rules)
+
+4. In your dataset, create filters using parameters:
+   ```
+   tenant_id_column = ${tenant_id}
+   role_column = ${role}
+   ```
+
+5. Apply filters to visuals
+
+**Note**: Parameters are passed as URL query parameters (`?p.tenant_id=T001&p.role=Finance`)
 
 ## Current Status
 - ✅ Both embedding modes implemented
 - ✅ Automatic user creation and permission management
 - ✅ tenant_id extraction from Cognito JWT
 - ✅ Governance rules integration
-- ✅ Session tags built for RLS
+- ✅ Session tags for anonymous embedding
+- ✅ Session parameters (URL query params) for registered embedding
 - ✅ Error handling for both modes
 - ⚠️ Frontend domain needs to be whitelisted in QuickSight Console
-- ⚠️ RLS configuration needed in QuickSight dataset for registered mode
+- ⚠️ Dashboard parameters need to be configured in QuickSight (for registered mode)
 
 ## Next Steps
 1. Whitelist frontend domain in QuickSight Console
-2. Configure RLS in QuickSight dataset (for registered mode)
-3. Test with multiple tenants
-4. Monitor CloudWatch logs for any issues
+2. Configure dashboard parameters in QuickSight (for registered mode):
+   - Create `tenant_id` parameter
+   - Create `role` parameter
+   - Create governance rule parameters (region, store_id, etc.)
+   - Apply parameter filters to visuals
+3. Test with multiple tenants and roles
+4. Monitor CloudWatch logs for parameter values

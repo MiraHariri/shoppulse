@@ -1,16 +1,11 @@
 /**
  * QuickSight Embed Lambda Handler
- * Generates embed URLs with tenant isolation and governance rules
+ * Generates embed URLs using anonymous embedding with session tags
  */
 
 import {
   QuickSightClient,
-  GenerateEmbedUrlForRegisteredUserCommand,
   GenerateEmbedUrlForAnonymousUserCommand,
-  DescribeUserCommand,
-  RegisterUserCommand,
-  UpdateDashboardPermissionsCommand,
-  ResourceNotFoundException,
 } from "@aws-sdk/client-quicksight";
 import { query } from "../shared/db";
 import {
@@ -36,8 +31,6 @@ const quicksightClient = new QuickSightClient({
 const QUICKSIGHT_AWS_ACCOUNT_ID = process.env.QUICKSIGHT_AWS_ACCOUNT_ID;
 const QUICKSIGHT_DASHBOARD_ID = process.env.QUICKSIGHT_DASHBOARD_ID;
 const SESSION_LIFETIME_MINUTES = 15;
-const USE_ANONYMOUS_EMBEDDING =
-  process.env.USE_ANONYMOUS_EMBEDDING === "true";
 
 /**
  * Extracts request context from API Gateway event
@@ -142,7 +135,8 @@ async function getGovernanceRules(
 }
 
 /**
- * Builds RLS session tags from tenant context and governance rules
+ * Builds session tags from tenant context, user role, and governance rules
+ * Used for anonymous embedding with RLS
  */
 function buildSessionTags(
   tenantId: string,
@@ -151,7 +145,7 @@ function buildSessionTags(
 ): SessionTag[] {
   const sessionTags: SessionTag[] = [
     { Key: "tenant_id", Value: tenantId },
-    { Key: "role", Value: userRole },
+    { Key: "userRole", Value: userRole },
   ];
 
   // Add governance dimension tags
@@ -166,109 +160,7 @@ function buildSessionTags(
 }
 
 /**
- * Ensures QuickSight user exists with IAM identity type
- */
-async function ensureQuickSightUser(
-  email: string,
-  sessionName: string,
-  lambdaRoleArn: string,
-  tenantId: string,
-  userRole: string,
-): Promise<string> {
-  if (!QUICKSIGHT_AWS_ACCOUNT_ID) {
-    throw new Error("QUICKSIGHT_AWS_ACCOUNT_ID environment variable not set");
-  }
-
-  // For IAM identity type, the username format is: role-name/session-name
-  const roleName = lambdaRoleArn.split("/").pop() || "";
-  const fullUserName = `${roleName}/${sessionName}`;
-  const userArn = `arn:aws:quicksight:${process.env.AWS_REGION || "us-east-1"}:${QUICKSIGHT_AWS_ACCOUNT_ID}:user/default/${fullUserName}`;
-
-  try {
-    // Check if user exists
-    const describeCommand = new DescribeUserCommand({
-      AwsAccountId: QUICKSIGHT_AWS_ACCOUNT_ID,
-      Namespace: "default",
-      UserName: fullUserName,
-    });
-
-    await quicksightClient.send(describeCommand);
-    console.log(`QuickSight user exists: ${fullUserName}`);
-    return fullUserName;
-  } catch (error: any) {
-    // User doesn't exist or ResourceExistsException, create with IAM identity
-    if (
-      error.name === "ResourceNotFoundException" ||
-      error.name === "ResourceExistsException"
-    ) {
-      console.log(
-        `User lookup failed, attempting to register: ${fullUserName}`,
-      );
-
-      try {
-        const registerCommand = new RegisterUserCommand({
-          AwsAccountId: QUICKSIGHT_AWS_ACCOUNT_ID,
-          Namespace: "default",
-          Email: email,
-          IdentityType: "IAM",
-          UserRole: "READER",
-          IamArn: lambdaRoleArn,
-          SessionName: sessionName,
-        });
-
-        await quicksightClient.send(registerCommand);
-        console.log(
-          `QuickSight user created: ${fullUserName} with tenant_id: ${tenantId}, role: ${userRole}`,
-        );
-
-        // Grant dashboard permissions to the new user
-        if (QUICKSIGHT_DASHBOARD_ID) {
-          try {
-            const grantPermissionsCommand =
-              new UpdateDashboardPermissionsCommand({
-                AwsAccountId: QUICKSIGHT_AWS_ACCOUNT_ID,
-                DashboardId: QUICKSIGHT_DASHBOARD_ID,
-                GrantPermissions: [
-                  {
-                    Principal: userArn,
-                    Actions: [
-                      "quicksight:DescribeDashboard",
-                      "quicksight:ListDashboardVersions",
-                      "quicksight:QueryDashboard",
-                    ],
-                  },
-                ],
-              });
-
-            await quicksightClient.send(grantPermissionsCommand);
-            console.log(
-              `Dashboard permissions granted to user: ${fullUserName}`,
-            );
-          } catch (permError: any) {
-            console.error(
-              `Failed to grant dashboard permissions: ${permError.message}`,
-            );
-            // Don't fail the entire operation if permission grant fails
-          }
-        }
-
-        return fullUserName;
-      } catch (registerError: any) {
-        // If user already exists, that's fine
-        if (registerError.name === "ResourceExistsException") {
-          console.log(`User already exists: ${fullUserName}`);
-          return fullUserName;
-        }
-        throw registerError;
-      }
-    } else {
-      throw error;
-    }
-  }
-}
-
-/**
- * Generates QuickSight embed URL with RLS session tags
+ * Generates QuickSight embed URL with session tags for RLS
  * GET /dashboards/embed-url
  */
 export async function generateEmbedUrl(
@@ -297,34 +189,19 @@ export async function generateEmbedUrl(
       `Retrieved ${governanceRules.length} governance rules for user ${context.userId}`,
     );
 
-    // Build RLS session tags
+    // Build session tags (tenant_id, userRole, governance rules)
     const sessionTags = buildSessionTags(
       context.tenantId,
       context.userRole,
       governanceRules,
     );
     console.log(
-      "RLS context (tenant_id, role, governance):",
+      "Session tags (tenant_id, userRole, governance rules):",
       JSON.stringify(sessionTags),
     );
 
-    console.log(
-      `Using ${USE_ANONYMOUS_EMBEDDING ? "ANONYMOUS" : "REGISTERED"} embedding`,
-    );
-
-    let embedUrl: string;
-
-    if (USE_ANONYMOUS_EMBEDDING) {
-      // Anonymous embedding - supports session tags for RLS
-      embedUrl = await generateAnonymousEmbedUrl(sessionTags);
-    } else {
-      // Registered user embedding - requires QuickSight user
-      embedUrl = await generateRegisteredUserEmbedUrl(
-        context.email,
-        context.tenantId,
-        context.userRole,
-      );
-    }
+    // Generate anonymous embed URL
+    const embedUrl = await generateAnonymousEmbedUrl(sessionTags);
 
     const embedResponse: EmbedUrlResponse = {
       embedUrl: embedUrl,
@@ -339,10 +216,6 @@ export async function generateEmbedUrl(
     console.error("Error generating embed URL:", error);
 
     // Handle specific QuickSight errors
-    if (error instanceof ResourceNotFoundException) {
-      return errorResponse(404, "Dashboard not available for your role", false);
-    }
-
     if (error.name === "AccessDeniedException") {
       return errorResponse(403, "Access denied to QuickSight dashboard", false);
     }
@@ -354,7 +227,7 @@ export async function generateEmbedUrl(
     if (error.name === "UnsupportedPricingPlanException") {
       return errorResponse(
         503,
-        "QuickSight pricing plan does not support this feature. Try setting USE_ANONYMOUS_EMBEDDING=false",
+        "QuickSight Capacity Pricing plan required for anonymous embedding",
         false,
       );
     }
@@ -391,63 +264,6 @@ async function generateAnonymousEmbedUrl(
   });
 
   console.log("Generating anonymous embed URL with session tags for RLS");
-
-  const response = await quicksightClient.send(command);
-
-  if (!response.EmbedUrl) {
-    throw new Error("QuickSight did not return an embed URL");
-  }
-
-  return response.EmbedUrl;
-}
-
-/**
- * Generate registered user embed URL
- * Works with per-session pricing
- */
-async function generateRegisteredUserEmbedUrl(
-  email: string,
-  tenantId: string,
-  userRole: string,
-): Promise<string> {
-  if (!QUICKSIGHT_AWS_ACCOUNT_ID || !QUICKSIGHT_DASHBOARD_ID) {
-    throw new Error("QuickSight configuration missing");
-  }
-
-  // Create a unique session name from email (replace @ and . with -)
-  const sessionName = `cognito-${email.replace(/[@.]/g, "-")}`;
-
-  // Get the Lambda execution role ARN
-  const lambdaRoleArn =
-    process.env.QUICKSIGHT_EMBED_LAMBDA_ROLE_ARN ||
-    `arn:aws:iam::${QUICKSIGHT_AWS_ACCOUNT_ID}:role/shoppulse-analytics-quicksight-embed-lambda-role-dev`;
-
-  // Ensure QuickSight user exists and get the full username
-  const fullUserName = await ensureQuickSightUser(
-    email,
-    sessionName,
-    lambdaRoleArn,
-    tenantId,
-    userRole,
-  );
-
-  // Generate embed URL for registered user
-  const userArn = `arn:aws:quicksight:${process.env.AWS_REGION || "us-east-1"}:${QUICKSIGHT_AWS_ACCOUNT_ID}:user/default/${fullUserName}`;
-
-  const command = new GenerateEmbedUrlForRegisteredUserCommand({
-    AwsAccountId: QUICKSIGHT_AWS_ACCOUNT_ID,
-    SessionLifetimeInMinutes: SESSION_LIFETIME_MINUTES,
-    UserArn: userArn,
-    ExperienceConfiguration: {
-      Dashboard: {
-        InitialDashboardId: QUICKSIGHT_DASHBOARD_ID,
-      },
-    },
-  });
-
-  console.log(
-    `Generating embed URL for user ARN: ${userArn} with tenant_id: ${tenantId}`,
-  );
 
   const response = await quicksightClient.send(command);
 
