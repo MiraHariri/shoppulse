@@ -157,13 +157,17 @@ data "aws_iam_policy_document" "quicksight_embed_lambda" {
 
     actions = [
       "quicksight:GenerateEmbedUrlForRegisteredUser",
+      "quicksight:GenerateEmbedUrlForAnonymousUser",
       "quicksight:RegisterUser",
-      "quicksight:DescribeUser"
+      "quicksight:DescribeUser",
+      "quicksight:UpdateDashboardPermissions",
+      "quicksight:DescribeDashboardPermissions"
     ]
 
     resources = [
       "arn:aws:quicksight:${var.aws_region}:${data.aws_caller_identity.current.account_id}:user/*",
-      "arn:aws:quicksight:${var.aws_region}:${data.aws_caller_identity.current.account_id}:dashboard/*"
+      "arn:aws:quicksight:${var.aws_region}:${data.aws_caller_identity.current.account_id}:dashboard/*",
+      "arn:aws:quicksight:${var.aws_region}:${data.aws_caller_identity.current.account_id}:namespace/default"
     ]
   }
 

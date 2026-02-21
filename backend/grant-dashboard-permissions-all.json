@@ -1,0 +1,10 @@
+[
+  {
+    "Principal": "arn:aws:quicksight:us-east-1:249759897196:user/default/shoppulse-analytics-quicksight-embed-lambda-role-dev/*",
+    "Actions": [
+      "quicksight:DescribeDashboard",
+      "quicksight:ListDashboardVersions",
+      "quicksight:QueryDashboard"
+    ]
+  }
+]

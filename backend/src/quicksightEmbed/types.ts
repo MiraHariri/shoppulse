@@ -34,8 +34,13 @@ export interface SessionTag {
  */
 export interface APIGatewayEvent {
   body: string | null;
+  headers?: { [key: string]: string };
   pathParameters: { [key: string]: string } | null;
   queryStringParameters: { [key: string]: string } | null;
+  httpMethod?: string;
+  resource?: string;
+  path?: string;
+  routeKey?: string;
   requestContext: {
     authorizer: {
       claims: {
@@ -45,6 +50,11 @@ export interface APIGatewayEvent {
         'custom:role': string;
       };
     };
+    http?: {
+      method: string;
+    };
+    httpMethod?: string;
+    resourcePath?: string;
   };
 }
 

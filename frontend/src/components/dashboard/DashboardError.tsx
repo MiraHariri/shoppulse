@@ -21,7 +21,7 @@ export default function DashboardError({ error, onRetry }: DashboardErrorProps) 
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        height: '800px',
+        height: '700px',
         gap: 3,
         padding: 3,
       }}

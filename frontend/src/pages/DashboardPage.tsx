@@ -1,14 +1,29 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Paper } from '@mui/material';
+import DashboardEmbed from '../components/dashboard/DashboardEmbed';
 
 export default function DashboardPage() {
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Dashboard
-      </Typography>
-      <Typography variant="body1" color="text.secondary">
-        QuickSight dashboard will be embedded here.
-      </Typography>
-    </Box>
+    <>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h4" sx={{ fontWeight: 600, color: '#1F2937', mb: 1 }}>
+          Analytics Dashboard
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Real-time insights and analytics for your business
+        </Typography>
+      </Box>
+
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          borderRadius: 2,
+          border: '1px solid #E5E7EB',
+          bgcolor: 'white',
+        }}
+      >
+        <DashboardEmbed />
+      </Paper>
+    </>
   );
 }

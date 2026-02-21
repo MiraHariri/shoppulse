@@ -40,7 +40,7 @@ export default function DashboardLoader() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        height: '800px',
+        height: '700px',
         gap: 3,
       }}
     >

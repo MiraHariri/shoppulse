@@ -23,6 +23,7 @@ provider:
     RDS_PASSWORD: ${env:RDS_PASSWORD}
     QUICKSIGHT_AWS_ACCOUNT_ID: ${env:QUICKSIGHT_AWS_ACCOUNT_ID, ''}
     QUICKSIGHT_DASHBOARD_ID: ${env:QUICKSIGHT_DASHBOARD_ID, ''}
+    USE_ANONYMOUS_EMBEDDING: ${env:USE_ANONYMOUS_EMBEDDING, 'false'}
   
   # POC: Lambda runs without VPC for simplicity
   # VPC configuration commented out - RDS has public access enabled for POC
@@ -33,10 +34,6 @@ provider:
   #     - ${env:LAMBDA_SUBNET_ID_1}
   #     - ${env:LAMBDA_SUBNET_ID_2}
   
-  # Use existing IAM role created by Terraform
-  iam:
-    role: ${env:USER_MANAGEMENT_LAMBDA_ROLE_ARN}
-
   # API Gateway configuration
   logs:
     restApi: false  # Disable API Gateway logging setup (using existing API Gateway)
@@ -78,6 +75,7 @@ functions:
     name: ${self:provider.stage}-shoppulse-user-management
     description: User management Lambda for ShopPulse Analytics
     reservedConcurrency: 100
+    role: ${env:USER_MANAGEMENT_LAMBDA_ROLE_ARN}
     # No events - API Gateway integration will be done by Terraform
 
   # QuickSight Embed Lambda
@@ -88,6 +86,7 @@ functions:
     reservedConcurrency: 200
     memorySize: 256
     timeout: 15
+    role: ${env:QUICKSIGHT_EMBED_LAMBDA_ROLE_ARN}
     # No events - API Gateway integration will be done by Terraform
 
 # CloudFormation resources
@@ -126,3 +125,6 @@ custom:
       - RDS_USERNAME
       - RDS_PASSWORD
       - USER_MANAGEMENT_LAMBDA_ROLE_ARN
+      - QUICKSIGHT_EMBED_LAMBDA_ROLE_ARN
+      - QUICKSIGHT_AWS_ACCOUNT_ID
+      - QUICKSIGHT_DASHBOARD_ID

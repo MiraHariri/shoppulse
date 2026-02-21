@@ -1,45 +1,46 @@
 # Temporary MOCK integrations for dashboard and governance endpoints
 # These will be replaced with actual Lambda integrations when those functions are deployed
 
-# GET /dashboards/embed-url - Temporary MOCK
-resource "aws_api_gateway_integration" "dashboards_embed_url_get_temp" {
-  rest_api_id = aws_api_gateway_rest_api.main.id
-  resource_id = aws_api_gateway_resource.dashboards_embed_url.id
-  http_method = aws_api_gateway_method.dashboards_embed_url_get.http_method
-  type        = "MOCK"
-
-  request_templates = {
-    "application/json" = jsonencode({
-      statusCode = 501
-    })
-  }
-}
-
-resource "aws_api_gateway_method_response" "dashboards_embed_url_get_temp" {
-  rest_api_id = aws_api_gateway_rest_api.main.id
-  resource_id = aws_api_gateway_resource.dashboards_embed_url.id
-  http_method = aws_api_gateway_method.dashboards_embed_url_get.http_method
-  status_code = "501"
-
-  response_models = {
-    "application/json" = "Empty"
-  }
-}
-
-resource "aws_api_gateway_integration_response" "dashboards_embed_url_get_temp" {
-  rest_api_id = aws_api_gateway_rest_api.main.id
-  resource_id = aws_api_gateway_resource.dashboards_embed_url.id
-  http_method = aws_api_gateway_method.dashboards_embed_url_get.http_method
-  status_code = "501"
-
-  response_templates = {
-    "application/json" = jsonencode({
-      message = "Not implemented yet - QuickSight embed Lambda function coming soon"
-    })
-  }
-
-  depends_on = [aws_api_gateway_integration.dashboards_embed_url_get_temp]
-}
+# GET /dashboards/embed-url - NOW USING ACTUAL LAMBDA (see quicksight_lambda_integration.tf)
+# Commented out - replaced with actual Lambda integration
+# resource "aws_api_gateway_integration" "dashboards_embed_url_get_temp" {
+#   rest_api_id = aws_api_gateway_rest_api.main.id
+#   resource_id = aws_api_gateway_resource.dashboards_embed_url.id
+#   http_method = aws_api_gateway_method.dashboards_embed_url_get.http_method
+#   type        = "MOCK"
+#
+#   request_templates = {
+#     "application/json" = jsonencode({
+#       statusCode = 501
+#     })
+#   }
+# }
+#
+# resource "aws_api_gateway_method_response" "dashboards_embed_url_get_temp" {
+#   rest_api_id = aws_api_gateway_rest_api.main.id
+#   resource_id = aws_api_gateway_resource.dashboards_embed_url.id
+#   http_method = aws_api_gateway_method.dashboards_embed_url_get.http_method
+#   status_code = "501"
+#
+#   response_models = {
+#     "application/json" = "Empty"
+#   }
+# }
+#
+# resource "aws_api_gateway_integration_response" "dashboards_embed_url_get_temp" {
+#   rest_api_id = aws_api_gateway_rest_api.main.id
+#   resource_id = aws_api_gateway_resource.dashboards_embed_url.id
+#   http_method = aws_api_gateway_method.dashboards_embed_url_get.http_method
+#   status_code = "501"
+#
+#   response_templates = {
+#     "application/json" = jsonencode({
+#       message = "Not implemented yet - QuickSight embed Lambda function coming soon"
+#     })
+#   }
+#
+#   depends_on = [aws_api_gateway_integration.dashboards_embed_url_get_temp]
+# }
 
 # GET /dashboards/list - Temporary MOCK
 resource "aws_api_gateway_integration" "dashboards_list_get_temp" {

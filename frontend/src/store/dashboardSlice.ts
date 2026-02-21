@@ -11,9 +11,16 @@ const initialState: DashboardState = {
 /**
  * Fetch QuickSight embed URL
  */
-export const fetchEmbedUrl = createAsyncThunk('dashboard/fetchEmbedUrl', async () => {
-  return await getEmbedUrl();
-});
+export const fetchEmbedUrl = createAsyncThunk(
+  'dashboard/fetchEmbedUrl',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await getEmbedUrl();
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to load dashboard');
+    }
+  }
+);
 
 const dashboardSlice = createSlice({
   name: 'dashboard',
@@ -37,7 +44,7 @@ const dashboardSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchEmbedUrl.rejected, (state, action) => {
-        state.error = action.error.message || 'Failed to load dashboard';
+        state.error = (action.payload as string) || action.error.message || 'Failed to load dashboard';
         state.loading = false;
       });
   },

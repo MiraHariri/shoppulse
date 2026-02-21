@@ -178,8 +178,9 @@ resource "aws_api_gateway_deployment" "main" {
     aws_api_gateway_integration.dashboards_list_options,
     # Governance OPTIONS integrations (MOCK - no Lambda needed)
     aws_api_gateway_integration.governance_rules_options,
+    # QuickSight Embed Lambda integration
+    aws_api_gateway_integration.dashboards_embed_url_get,
     # Temporary MOCK integrations for not-yet-implemented endpoints
-    aws_api_gateway_integration.dashboards_embed_url_get_temp,
     aws_api_gateway_integration.dashboards_list_get_temp,
     aws_api_gateway_integration.governance_rules_get_temp,
     aws_api_gateway_integration.governance_rules_put_temp,
