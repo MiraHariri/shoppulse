@@ -11,6 +11,8 @@ import {
   InputAdornment,
   Box,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { Close, Visibility, VisibilityOff } from '@mui/icons-material';
 import type { CreateUserData } from '../../types/user.types';
@@ -33,6 +35,9 @@ interface UserFormProps {
  * Requirements: 9.2, 9.4
  */
 export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  
   const [formData, setFormData] = useState<CreateUserData>({
     email: '',
     password: '',
@@ -157,9 +162,10 @@ export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
       onClose={onCancel}
       maxWidth="sm"
       fullWidth
+      fullScreen={fullScreen}
       PaperProps={{
         sx: {
-          borderRadius: 2,
+          borderRadius: fullScreen ? 0 : 2,
         }
       }}
     >

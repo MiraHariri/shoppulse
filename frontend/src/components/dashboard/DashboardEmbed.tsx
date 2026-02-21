@@ -98,7 +98,11 @@ export default function DashboardEmbed() {
             src={embedUrl}
             width="100%"
             height="700px"
-            style={{ border: 0 }}
+            style={{ 
+              border: 0,
+              minHeight: '500px',
+              maxHeight: '80vh'
+            }}
             title="Analytics Dashboard"
             allow="fullscreen"
           />

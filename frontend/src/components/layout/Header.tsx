@@ -1,12 +1,18 @@
-import { AppBar, Toolbar, Typography, Box, IconButton, Menu, MenuItem, Divider } from '@mui/material';
-import { AccountCircle, Logout, Settings, People } from '@mui/icons-material';
+import { AppBar, Toolbar, Typography, Box, IconButton, Menu, MenuItem, Divider, useMediaQuery, useTheme } from '@mui/material';
+import { AccountCircle, Logout, Settings, People, Menu as MenuIcon } from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
-export default function Header() {
+interface HeaderProps {
+  onMenuClick: () => void;
+}
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [accountAnchorEl, setAccountAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleAccountMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -46,20 +52,42 @@ export default function Header() {
       }}
     >
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
+        {/* Mobile menu button */}
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
+          onClick={onMenuClick}
+          sx={{ mr: 2, display: { xs: 'block', md: 'none' } }}
+        >
+          <MenuIcon />
+        </IconButton>
+
+        <Typography 
+          variant={isMobile ? 'h6' : 'h6'} 
+          component="div" 
+          sx={{ 
+            flexGrow: 1, 
+            fontWeight: 600,
+            fontSize: { xs: '1rem', sm: '1.25rem' }
+          }}
+        >
           ShopPulse Analytics
         </Typography>
         
         {user && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Box sx={{ textAlign: 'right' }}>
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                {user.email}
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#6366F1' }}>
-                {user.role}
-              </Typography>
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
+            {/* Hide user info on very small screens */}
+            {!isMobile && (
+              <Box sx={{ textAlign: 'right' }}>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  {user.email}
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#6366F1' }}>
+                  {user.role}
+                </Typography>
+              </Box>
+            )}
             
             <IconButton
               size="large"
@@ -87,6 +115,21 @@ export default function Header() {
               open={Boolean(accountAnchorEl)}
               onClose={handleAccountClose}
             >
+              {/* Show user info in menu on mobile */}
+              {isMobile && (
+                <>
+                  <Box sx={{ px: 2, py: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {user.email}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#6366F1' }}>
+                      {user.role}
+                    </Typography>
+                  </Box>
+                  <Divider sx={{ my: 1 }} />
+                </>
+              )}
+
               {/* Management options - only for Admin users */}
               {hasManagementAccess && [
                 <MenuItem key="users" onClick={handleNavigateToUsers}>

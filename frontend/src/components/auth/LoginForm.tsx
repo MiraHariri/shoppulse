@@ -89,10 +89,17 @@ export default function LoginForm() {
       alignItems="center"
       minHeight="100vh"
       bgcolor="background.default"
+      px={{ xs: 2, sm: 3 }}
     >
-      <Card sx={{ maxWidth: 400, width: '100%', mx: 2 }}>
-        <CardContent sx={{ p: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom align="center">
+      <Card sx={{ maxWidth: 400, width: '100%' }}>
+        <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            gutterBottom 
+            align="center"
+            sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}
+          >
             ShopPulse Analytics
           </Typography>
           <Typography

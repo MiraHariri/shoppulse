@@ -82,16 +82,25 @@ export default function UserList() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: 'space-between', 
+        alignItems: { xs: 'stretch', sm: 'center' }, 
+        mb: { xs: 2, sm: 3 },
+        gap: { xs: 2, sm: 0 }
+      }}>
         <Typography variant="h6" sx={{ fontWeight: 600 }}>
           Users
         </Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Button
             variant="outlined"
             startIcon={<Refresh />}
             onClick={handleRefresh}
             disabled={loading}
+            size="small"
+            sx={{ flex: { xs: 1, sm: 'none' } }}
           >
             Refresh
           </Button>
@@ -100,6 +109,8 @@ export default function UserList() {
             startIcon={<Add />}
             onClick={() => setShowAddUserForm(true)}
             disabled={loading}
+            size="small"
+            sx={{ flex: { xs: 1, sm: 'none' } }}
           >
             Add User
           </Button>

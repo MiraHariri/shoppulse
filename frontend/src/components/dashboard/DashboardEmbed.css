@@ -17,7 +17,7 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .dashboard-container {
     min-height: 500px;
   }
@@ -27,7 +27,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .dashboard-container {
     min-height: 400px;
   }
