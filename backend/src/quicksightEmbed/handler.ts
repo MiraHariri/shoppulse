@@ -122,13 +122,18 @@ async function getUserData(
   tenantId: string,
   userId: string,
 ): Promise<{ region: string | null; store_id: string | null }> {
-  const result = await query<{ region: string | null; store_id: string | null }>(
+  const result = await query<{
+    region: string | null;
+    store_id: string | null;
+  }>(
     "SELECT region, store_id FROM users WHERE tenant_id = $1 AND cognito_user_id = $2",
     [tenantId, userId],
   );
 
   if (result.rows.length === 0) {
-    console.warn(`User not found in database: tenant_id=${tenantId}, cognito_user_id=${userId}`);
+    console.warn(
+      `User not found in database: tenant_id=${tenantId}, cognito_user_id=${userId}`,
+    );
     return { region: null, store_id: null };
   }
 
@@ -192,7 +197,10 @@ export async function generateEmbedUrl(
     );
 
     // Generate anonymous embed URL with userRole as parameter
-    const embedUrl = await generateAnonymousEmbedUrl(sessionTags, context.userRole);
+    const embedUrl = await generateAnonymousEmbedUrl(
+      sessionTags,
+      context.userRole,
+    );
 
     const embedResponse: EmbedUrlResponse = {
       embedUrl: embedUrl,
@@ -251,6 +259,18 @@ async function generateAnonymousEmbedUrl(
       Dashboard: {
         InitialDashboardId: QUICKSIGHT_DASHBOARD_ID,
       },
+      // DashboardVisual: {
+      //   InitialDashboardVisualId: {
+      //     DashboardId: QUICKSIGHT_DASHBOARD_ID,
+      //     SheetId:
+      //       "bf926a0c-e4dd-48f1-9f83-9e685858cbcb_2656d17f-58bf-4dd4-8634-03a70535b6cc",
+      //     VisualId:
+      //       "bf926a0c-e4dd-48f1-9f83-9e685858cbcb_3760cabe-62ce-414f-970d-2479533e3426",
+      //   },
+      // },
+      // GenerativeQnA: {
+      //   InitialTopicId: ''
+      // }
     },
     SessionTags: sessionTags,
   });

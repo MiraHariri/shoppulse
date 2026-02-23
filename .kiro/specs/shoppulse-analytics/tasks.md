@@ -20,30 +20,10 @@ Each task builds on previous work, with property-based tests and unit tests inte
   - Store database credentials in AWS Secrets Manager
   - _Requirements: 15.1, 15.2, 15.3, 15.5_
 
-- [x] 2. Set up AWS Cognito User Pool
-  - Create Cognito User Pool with custom attributes (tenant_id, role)
-  - Configure password policy (min 8 chars, uppercase, lowercase, numbers)
-  - Set token expiration (access: 1 hour, refresh: 30 days)
-  - Configure account recovery via email
-  - _Requirements: 1.1, 1.4_
 
-- [x] 3. Set up AWS API Gateway
-  - Create REST API with Cognito authorizer
-  - Configure CORS for frontend domain
-  - Set up request validation and rate limiting
-  - Configure request context mapping to extract tenant_id from JWT
-  - _Requirements: 1.3, 11.1, 11.3_
 
 - [x] 4. Implement backend Lambda infrastructure
-  - [x] 4.1 Create Lambda execution roles with least privilege IAM policies
-    - User management Lambda role (Cognito, Secrets Manager, CloudWatch Logs)
-    - QuickSight embed Lambda role (QuickSight, Secrets Manager, CloudWatch Logs)
-    - _Requirements: 11.4_
-  
-  - [x] 4.2 Set up Lambda VPC configuration
-    - Configure security groups for Lambda to RDS communication
-    - Set up private subnets for Lambda functions
-    - _Requirements: 2.2_
+
   
   - [x] 4.3 Create shared database connection module (TypeScript)
     - Implement credential retrieval from Secrets Manager
@@ -59,27 +39,7 @@ Each task builds on previous work, with property-based tests and unit tests inte
     - Implement deleteUser endpoint (Cognito + PostgreSQL)
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
   
-  - [x]* 5.2 Write property test for user creation inherits tenant
-    - **Property 10: User Creation Inherits Admin Tenant**
-    - **Validates: Requirements 5.1**
-  
-  - [x]* 5.3 Write property test for cross-tenant access denial
-    - **Property 5: Cross-Tenant Access Is Denied**
-    - **Validates: Requirements 2.3, 2.4, 5.4, 5.5**
-  
-  - [x]* 5.4 Write property test for role assignment tenant scoping
-    - **Property 11: Role Assignment Is Tenant-Scoped**
-    - **Validates: Requirements 5.2**
-  
-  - [x]* 5.5 Write property test for user deletion
-    - **Property 12: User Deletion Removes From Both Systems**
-    - **Validates: Requirements 5.3**
-  
-  - [x]* 5.6 Write unit tests for user management edge cases
-    - Test invalid email format rejection
-    - Test duplicate email handling
-    - Test missing required fields
-    - _Requirements: 5.1, 5.2, 5.3_
+
 
 - [x] 6. Implement QuickSight embed Lambda function
   - [x] 6.1 Create QuickSight embed handler (TypeScript)
@@ -89,23 +49,7 @@ Each task builds on previous work, with property-based tests and unit tests inte
     - Call QuickSight SDK to generate embed URL with 15-minute expiration
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 12.3_
   
-  - [x]* 6.2 Write property test for embed URL session context
-    - **Property 7: Embed URL Generation Includes Complete Session Context**
-    - **Validates: Requirements 3.1, 3.2, 3.4, 12.3**
-  
-  - [x]* 6.3 Write property test for embed URL expiration
-    - **Property 8: Embed URLs Expire After 15 Minutes**
-    - **Validates: Requirements 3.3**
-  
-  - [x]* 6.4 Write property test for role-based dashboard access
-    - **Property 9: Role-Based Dashboard Access**
-    - **Validates: Requirements 4.1, 4.2, 4.3, 4.4, 4.5**
-  
-  - [x]* 6.5 Write unit tests for QuickSight error handling
-    - Test QuickSight user not found scenario
-    - Test dashboard not found scenario
-    - Test QuickSight API failure with retry
-    - _Requirements: 3.1_
+
 
 - [x] 7. Implement audit logging
   - [x] 7.1 Create audit logging utility module (TypeScript)
@@ -114,23 +58,7 @@ Each task builds on previous work, with property-based tests and unit tests inte
     - Insert into audit_logs table
     - _Requirements: 11.5_
   
-  - [x]* 7.2 Write property test for audit logging
-    - **Property 21: Operations Are Logged With Tenant Context**
-    - **Validates: Requirements 11.5**
-  
-  - [x] 7.3 Integrate audit logging into user management Lambda
-    - Log user creation, role updates, user deletion
-    - _Requirements: 11.5_
-  
-  - [x] 7.4 Integrate audit logging into QuickSight embed Lambda
-    - Log dashboard access requests
-    - _Requirements: 11.5_
 
-- [x]* 8. Checkpoint - Ensure backend Lambda functions work
-  - Test user management endpoints with Postman/curl
-  - Test QuickSight embed URL generation
-  - Verify audit logs are created
-  - Ensure all tests pass, ask the user if questions arise.
 
 
 - [x] 9. Set up React TypeScript frontend project
@@ -163,34 +91,16 @@ Each task builds on previous work, with property-based tests and unit tests inte
     - Integrate with AWS Amplify Auth
     - _Requirements: 1.1, 1.2, 13.2, 13.3_
   
-  - [x]* 10.3 Write property test for authentication token contains tenant context
-    - **Property 1: Authentication Token Contains Tenant Context**
-    - **Validates: Requirements 1.1, 1.4**
-  
-  - [x]* 10.4 Write property test for invalid credentials rejection
-    - **Property 2: Invalid Credentials Are Rejected**
-    - **Validates: Requirements 1.2**
-  
   - [x] 10.5 Create useAuth hook
     - Wrap Redux auth state and actions
     - Provide login, logout, user, loading, error
     - _Requirements: 13.2_
-  
-  - [x]* 10.6 Write unit tests for authentication flow
-    - Test successful login stores user data
-    - Test failed login shows error message
-    - Test logout clears user data
-    - _Requirements: 1.1, 1.2_
 
 - [x] 11. Implement API client and services
   - [x] 11.1 Create API client utility (apiClient.ts)
     - Implement getAuthHeaders to retrieve JWT from Amplify
     - Implement apiRequest generic function with error handling
     - _Requirements: 9.4, 13.3_
-  
-  - [x]* 11.2 Write property test for API requests include auth tokens
-    - **Property 18: API Requests Include Authentication Tokens**
-    - **Validates: Requirements 9.4, 13.3**
   
   - [x] 11.3 Create userService with CRUD operations
     - Implement listUsers, createUser, updateUserRole, deleteUser
@@ -214,10 +124,6 @@ Each task builds on previous work, with property-based tests and unit tests inte
     - Check user role for admin access
     - _Requirements: 9.1, 9.4_
   
-  - [x]* 12.3 Write property test for user management UI displays tenant-scoped data
-    - **Property 17: User Management UI Displays Tenant-Scoped Data**
-    - **Validates: Requirements 9.1**
-  
   - [x] 12.4 Create UserForm component
     - Form fields: email, password, role selector
     - Form validation (email format, password strength)
@@ -230,12 +136,6 @@ Each task builds on previous work, with property-based tests and unit tests inte
     - Delete button with confirmation dialog
     - _Requirements: 9.3, 9.4_
   
-  - [x]* 12.6 Write unit tests for user management components
-    - Test UserList renders users correctly
-    - Test UserForm validates inputs
-    - Test UserTable handles role updates
-    - _Requirements: 9.1, 9.2, 9.3_
-
 
 - [x] 13. Implement dashboard embedding UI
   - [x] 13.1 Create dashboardSlice with Redux Toolkit
@@ -259,12 +159,7 @@ Each task builds on previous work, with property-based tests and unit tests inte
     - Provide retry button
     - _Requirements: 10.5_
   
-  - [x]* 13.5 Write unit tests for dashboard components
-    - Test DashboardEmbed displays loading state initially
-    - Test DashboardEmbed renders iframe with URL
-    - Test DashboardEmbed displays error on failure
-    - Test retry button calls fetchEmbedUrl again
-    - _Requirements: 10.1, 10.2, 10.3, 10.5_
+
 
 - [x] 14. Implement authentication UI
   - [x] 14.1 Create LoginForm component
@@ -279,11 +174,7 @@ Each task builds on previous work, with property-based tests and unit tests inte
     - Render children if authenticated
     - _Requirements: 1.5_
   
-  - [x]* 14.3 Write unit tests for authentication UI
-    - Test LoginForm submits credentials
-    - Test LoginForm displays errors
-    - Test ProtectedRoute redirects unauthenticated users
-    - _Requirements: 1.5, 13.2_
+
 
 - [x] 15. Implement layout and navigation
   - [x] 15.1 Create Layout component
@@ -339,13 +230,6 @@ Each task builds on previous work, with property-based tests and unit tests inte
     - Toast notifications for success/error feedback
     - _Requirements: 9.5_
 
-- [x]* 17. Checkpoint - Ensure frontend works end-to-end
-  - Test login flow with valid and invalid credentials
-  - Test user management (create, update, delete)
-  - Test dashboard embedding and auto-refresh
-  - Verify responsive design on mobile and desktop
-  - Ensure all tests pass, ask the user if questions arise.
-
 
 - [x] 18. Implement security features
   - [x] 18.1 Add Content Security Policy headers
@@ -360,19 +244,7 @@ Each task builds on previous work, with property-based tests and unit tests inte
     - Redirect to login if refresh fails
     - _Requirements: 13.4, 13.5_
   
-  - [x]* 18.3 Write property test for SQL injection prevention
-    - **Property 25: SQL Injection Prevention**
-    - **Validates: Requirements 15.4**
-  
-  - [x]* 18.4 Write property test for invalid tokens result in 401
-    - **Property 19: Invalid Tokens Result in 401 Unauthorized**
-    - **Validates: Requirements 11.1, 11.2**
-  
-  - [x]* 18.5 Write unit tests for security features
-    - Test malicious SQL input is rejected
-    - Test XSS attempts are sanitized
-    - Test expired tokens trigger refresh
-    - _Requirements: 11.1, 11.2, 15.4_
+
 
 - [x] 19. Implement governance rules management
   - [x] 19.1 Create governance rules API endpoints in Lambda
@@ -381,201 +253,14 @@ Each task builds on previous work, with property-based tests and unit tests inte
     - Validate tenant_id matches authenticated user
     - _Requirements: 12.1, 12.2_
   
-  - [x]* 19.2 Write property test for governance rules are tenant-scoped
-    - **Property 22: Governance Rules Are Tenant-Scoped**
-    - **Validates: Requirements 12.1**
-  
-  - [x]* 19.3 Write property test for governance filters applied with tenant filters
-    - **Property 23: Governance Filters Are Applied With Tenant Filters**
-    - **Validates: Requirements 12.4**
-  
-  - [x]* 19.4 Write property test for governance changes reflect in new embed URLs
-    - **Property 24: Governance Changes Reflect in New Embed URLs**
-    - **Validates: Requirements 12.5**
-  
   - [x] 19.5 Create governance rules UI components
     - GovernanceRulesForm component for editing rules
     - Support region, store, team, custom dimensions
     - _Requirements: 12.1, 12.2_
   
-  - [x]* 19.6 Write unit tests for governance rules
-    - Test governance rules are stored with tenant_id
-    - Test governance rules are included in embed URLs
-    - _Requirements: 12.1, 12.3_
-
-- [x] 20. Implement QuickSight dashboard configuration
-  - [x] 20.1 Create QuickSight datasets
-    - Connect to e-commerce data warehouse
-    - Create datasets for orders, fulfillment, marketing_campaigns
-    - _Requirements: 14.1, 14.2, 14.3_
-  
-  - [x] 20.2 Configure Row-Level Security (RLS) on datasets
-    - Add tenant_id RLS rule to all datasets
-    - Add region and store_id RLS rules for governance
-    - Test RLS rules with sample data
-    - _Requirements: 2.1, 2.5, 8.2_
-  
-  - [x] 20.3 Create QuickSight dashboards
-    - Revenue Dashboard (Finance role): revenue, conversion rate, order volume
-    - Fulfillment Dashboard (Operations role): fulfillment SLA, inventory
-    - Campaign Dashboard (Marketing role): campaign ROI, CAC, channel performance
-    - _Requirements: 14.1, 14.2, 14.3_
-  
-  - [x] 20.4 Configure dashboard time filters
-    - Add date range parameters (daily, weekly, monthly, quarterly, yearly)
-    - _Requirements: 14.4_
-  
-  - [x] 20.5 Configure dashboard visualizations
-    - Line charts for trends
-    - Bar charts for comparisons
-    - KPI cards for summaries
-    - _Requirements: 14.5_
-
-- [x] 21. Implement property-based tests for tenant isolation
-  - [x]* 21.1 Write property test for database queries include tenant filter
-    - **Property 4: Database Queries Include Tenant Filter**
-    - **Validates: Requirements 2.2**
-  
-  - [x]* 21.2 Write property test for QuickSight RLS filters by tenant
-    - **Property 6: QuickSight RLS Filters By Tenant**
-    - **Validates: Requirements 2.1, 8.2**
-  
-  - [x]* 21.3 Write property test for interactive operations preserve tenant isolation
-    - **Property 13: Interactive Operations Preserve Tenant Isolation**
-    - **Validates: Requirements 6.2, 6.3, 6.5**
-  
-  - [x]* 21.4 Write property test for dashboard exports respect boundaries
-    - **Property 14: Dashboard Exports Respect Tenant and Role Boundaries**
-    - **Validates: Requirements 7.1**
-  
-  - [x]* 21.5 Write property test for embed URLs not shareable across tenants
-    - **Property 15: Embed URLs Are Not Shareable Across Tenants**
-    - **Validates: Requirements 7.4**
-  
-  - [x]* 21.6 Write property test for concurrent multi-tenant access
-    - **Property 16: Concurrent Multi-Tenant Access**
-    - **Validates: Requirements 8.4**
 
 
-- [x] 22. Implement additional property-based tests
-  - [x]* 22.1 Write property test for API Gateway extracts tenant context
-    - **Property 3: API Gateway Extracts Tenant Context**
-    - **Validates: Requirements 1.3, 11.3**
-  
-  - [x]* 22.2 Write property test for Lambda functions use request context tenant ID
-    - **Property 20: Lambda Functions Use Request Context Tenant ID**
-    - **Validates: Requirements 11.4**
 
-- [x] 23. Set up deployment infrastructure
-  - [x] 23.1 Create AWS CDK or Terraform infrastructure code
-    - Define VPC with public, private, and database subnets
-    - Define RDS PostgreSQL instance with Multi-AZ
-    - Define RDS Proxy for connection pooling
-    - Define Cognito User Pool
-    - Define API Gateway with Cognito authorizer
-    - Define Lambda functions with VPC configuration
-    - Define S3 bucket and CloudFront distribution for frontend
-    - _Requirements: All infrastructure requirements_
-  
-  - [x] 23.2 Set up CI/CD pipeline
-    - Create GitHub Actions workflow for backend deployment
-    - Create GitHub Actions workflow for frontend deployment
-    - Configure automated testing in CI pipeline
-    - _Requirements: All requirements_
-  
-  - [x] 23.3 Configure monitoring and alerting
-    - Set up CloudWatch dashboards for metrics
-    - Configure CloudWatch alarms for errors and performance
-    - Enable X-Ray tracing on Lambda functions
-    - _Requirements: 11.5_
-
-- [x] 24. Implement database migration strategy
-  - [x] 24.1 Set up node-pg-migrate
-    - Install node-pg-migrate package
-    - Create initial migration for schema
-    - _Requirements: 15.1, 15.2, 15.3_
-  
-  - [x] 24.2 Create seed data migration
-    - Insert sample tenant data
-    - Insert sample role metric visibility data
-    - _Requirements: 15.5_
-  
-  - [x] 24.3 Document migration process
-    - Document how to run migrations
-    - Document rollback procedures
-    - _Requirements: 15.1_
-
-- [x] 25. Integration testing
-  - [x]* 25.1 Write integration test for complete authentication flow
-    - Test login → token retrieval → API call with token
-    - _Requirements: 1.1, 1.3, 11.1_
-  
-  - [x]* 25.2 Write integration test for complete dashboard access flow
-    - Test login → request embed URL → render dashboard
-    - _Requirements: 1.1, 3.1, 10.1, 10.2_
-  
-  - [x]* 25.3 Write integration test for complete user management flow
-    - Test admin login → create user → update role → delete user
-    - _Requirements: 5.1, 5.2, 5.3_
-  
-  - [x]* 25.4 Write integration test for tenant isolation
-    - Test two tenants accessing system simultaneously
-    - Verify no data leakage between tenants
-    - _Requirements: 2.1, 2.2, 2.3, 2.4_
-
-- [x] 26. Performance testing
-  - [x]* 26.1 Test Lambda cold start and warm execution times
-    - Verify cold start < 3 seconds
-    - Verify warm execution < 500ms
-    - _Requirements: All Lambda requirements_
-  
-  - [x]* 26.2 Test API Gateway latency
-    - Verify p99 latency < 1 second
-    - _Requirements: 11.1_
-  
-  - [x]* 26.3 Test PostgreSQL query performance
-    - Verify query time < 100ms for tenant-filtered queries
-    - _Requirements: 2.2, 15.2_
-  
-  - [x]* 26.4 Test concurrent user load
-    - Simulate 100 concurrent users per tenant
-    - Test with 50 tenants simultaneously
-    - Verify no performance degradation or data leakage
-    - _Requirements: 8.4_
-
-- [x]* 27. Final checkpoint - End-to-end validation
-  - Deploy complete system to staging environment
-  - Test all user flows (login, dashboard access, user management)
-  - Verify tenant isolation with multiple test tenants
-  - Run all property-based tests (100 iterations each)
-  - Run all unit tests and integration tests
-  - Verify security features (CSP, token refresh, SQL injection prevention)
-  - Test responsive design on multiple devices
-  - Ensure all tests pass, ask the user if questions arise.
-
-- [x] 28. Documentation and handoff
-  - [x] 28.1 Create API documentation
-    - Document all API endpoints with request/response examples
-    - Document authentication flow
-    - _Requirements: All API requirements_
-  
-  - [x] 28.2 Create deployment documentation
-    - Document infrastructure setup
-    - Document CI/CD pipeline
-    - Document monitoring and alerting
-    - _Requirements: All infrastructure requirements_
-  
-  - [x] 28.3 Create user documentation
-    - Document admin user management features
-    - Document dashboard access and usage
-    - Document governance rules configuration
-    - _Requirements: 9.1, 10.1, 12.1_
-  
-  - [x] 28.4 Create runbook for operations
-    - Document common issues and resolutions
-    - Document disaster recovery procedures
-    - Document database backup and restore
-    - _Requirements: All operational requirements_
 
 ## Notes
 
