@@ -76,6 +76,15 @@ functions:
     reservedConcurrency: 100
     role: ${env:USER_MANAGEMENT_LAMBDA_ROLE_ARN}
     # No events - API Gateway integration will be done by Terraform
+    
+  # Role Management Lambda
+  roleManagement:
+    handler: dist/roleManagement/index.handler
+    name: ${self:provider.stage}-shoppulse-role-management
+    description: Role management Lambda for ShopPulse Analytics
+    reservedConcurrency: 100
+    role: ${env:USER_MANAGEMENT_LAMBDA_ROLE_ARN}
+    # No events - API Gateway integration will be done by Terraform
 
   # QuickSight Embed Lambda
   quicksightEmbed:
@@ -96,6 +105,12 @@ resources:
       Value:
         Fn::GetAtt:
           - UserManagementLambdaFunction
+          - Arn
+    RoleManagementLambdaArn:
+      Description: Role Management Lambda Function ARN
+      Value:
+        Fn::GetAtt:
+          - RoleManagementLambdaFunction
           - Arn
 
     QuickSightEmbedLambdaArn:

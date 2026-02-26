@@ -48,19 +48,6 @@ export function isValidPassword(password: string): boolean {
 }
 
 /**
- * Validates user role
- * 
- * @param role - Role to validate
- * @returns True if valid, false otherwise
- */
-export function isValidRole(role: string): boolean {
-  if (!role || typeof role !== 'string') {
-    return false;
-  }
-  return VALID_ROLES.includes(role as any);
-}
-
-/**
  * Validates required fields for user creation
  * 
  * @param data - User data to validate
@@ -95,14 +82,6 @@ export function validateCreateUserRequest(data: any): { valid: boolean; error?: 
     return { valid: false, error: 'Role is required', field: 'role' };
   }
 
-  if (!isValidRole(data.role)) {
-    return {
-      valid: false,
-      error: 'Invalid role. Must be one of: Admin, Finance, Operations, Marketing',
-      field: 'role',
-    };
-  }
-
   return { valid: true };
 }
 
@@ -119,14 +98,6 @@ export function validateUpdateRoleRequest(data: any): { valid: boolean; error?: 
 
   if (!data.role) {
     return { valid: false, error: 'Role is required', field: 'role' };
-  }
-
-  if (!isValidRole(data.role)) {
-    return {
-      valid: false,
-      error: 'Invalid role. Must be one of: Admin, Finance, Operations, Marketing',
-      field: 'role',
-    };
   }
 
   return { valid: true };

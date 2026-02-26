@@ -1,15 +1,22 @@
 /* eslint-disable no-useless-catch */
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Box, Button, Alert, CircularProgress, Typography } from '@mui/material';
-import { Add, Refresh } from '@mui/icons-material';
-import type { RootState, AppDispatch } from '../../store';
-import { fetchUsers, createUser, clearError } from '../../store/userSlice';
-import { useAuth } from '../../hooks/useAuth';
-import { USER_ROLES } from '../../utils/constants';
-import type { CreateUserData } from '../../types/user.types';
-import UserForm from './UserForm';
-import UserTable from './UserTable';
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Box,
+  Button,
+  Alert,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
+import { Add, Refresh } from "@mui/icons-material";
+import type { RootState, AppDispatch } from "../../store";
+import { fetchUsers, createUser, clearError } from "../../store/userSlice";
+import { useAuth } from "../../hooks/useAuth";
+import { USER_ROLES } from "../../utils/constants";
+import type { CreateUserData } from "../../types/user.types";
+import UserForm from "./UserForm";
+import UserTable from "./UserTable";
+import { fetchRoles } from "../../store/roleSlice";
 
 /**
  * UserList component - Displays user table with role and status
@@ -19,13 +26,18 @@ import UserTable from './UserTable';
 export default function UserList() {
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useAuth();
-  const { users = [], loading, error } = useSelector((state: RootState) => state.users);
+  const {
+    users = [],
+    loading,
+    error,
+  } = useSelector((state: RootState) => state.users);
   const [showAddUserForm, setShowAddUserForm] = useState(false);
 
   useEffect(() => {
     // Fetch users when component mounts
     if (user?.role === USER_ROLES.ADMIN) {
       dispatch(fetchUsers());
+      dispatch(fetchRoles());
     }
   }, [dispatch, user?.role]);
 
@@ -35,7 +47,7 @@ export default function UserList() {
   const handleRefresh = () => {
     dispatch(fetchUsers());
   };
-  
+
   /**
    * Handle user creation
    */
@@ -61,7 +73,14 @@ export default function UserList() {
   // Check if user has admin access
   if (!user) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: 200,
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -69,7 +88,7 @@ export default function UserList() {
 
   if (user.role !== USER_ROLES.ADMIN) {
     return (
-      <Box sx={{ textAlign: 'center', py: 4 }}>
+      <Box sx={{ textAlign: "center", py: 4 }}>
         <Typography variant="h5" gutterBottom>
           Access Denied
         </Typography>
@@ -82,25 +101,27 @@ export default function UserList() {
 
   return (
     <Box>
-      <Box sx={{ 
-        display: 'flex', 
-        flexDirection: { xs: 'column', sm: 'row' },
-        justifyContent: 'space-between', 
-        alignItems: { xs: 'stretch', sm: 'center' }, 
-        mb: { xs: 2, sm: 3 },
-        gap: { xs: 2, sm: 0 }
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          justifyContent: "space-between",
+          alignItems: { xs: "stretch", sm: "center" },
+          mb: { xs: 2, sm: 3 },
+          gap: { xs: 2, sm: 0 },
+        }}
+      >
         <Typography variant="h6" sx={{ fontWeight: 600 }}>
           Users
         </Typography>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
           <Button
             variant="outlined"
             startIcon={<Refresh />}
             onClick={handleRefresh}
             disabled={loading}
             size="small"
-            sx={{ flex: { xs: 1, sm: 'none' } }}
+            sx={{ flex: { xs: 1, sm: "none" } }}
           >
             Refresh
           </Button>
@@ -110,7 +131,7 @@ export default function UserList() {
             onClick={() => setShowAddUserForm(true)}
             disabled={loading}
             size="small"
-            sx={{ flex: { xs: 1, sm: 'none' } }}
+            sx={{ flex: { xs: 1, sm: "none" } }}
           >
             Add User
           </Button>
@@ -124,7 +145,7 @@ export default function UserList() {
       )}
 
       {loading && users.length === 0 && !error ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
           <CircularProgress />
         </Box>
       ) : (

@@ -10,6 +10,7 @@ import Layout from './components/layout/Layout';
 import LoginForm from './components/auth/LoginForm';
 import DashboardPage from './pages/DashboardPage';
 import UsersPage from './pages/UsersPage';
+import RolesPage from './pages/RolesPage';
 import SettingsPage from './pages/SettingsPage';
 
 // Configure Amplify on app initialization
@@ -89,6 +90,7 @@ function AppRoutes() {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/users" element={<UsersPage />} />
+        <Route path="/roles" element={<RolesPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
 

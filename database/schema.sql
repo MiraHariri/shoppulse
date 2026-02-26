@@ -32,7 +32,6 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id),
-    CONSTRAINT chk_user_role CHECK (role IN ('Admin', 'Finance', 'Operations', 'Marketing')),
     CONSTRAINT chk_user_status CHECK (status IN ('Active', 'Inactive', 'Deleted'))
 );
 
@@ -117,7 +116,6 @@ CREATE TABLE role_metric_visibility (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id),
-    CONSTRAINT chk_role CHECK (role IN ('Admin', 'Finance', 'Operations', 'Marketing')),
     UNIQUE(tenant_id, role, metric_name)
 );
 
@@ -140,25 +138,7 @@ CREATE TABLE governance_rules (
 CREATE INDEX idx_governance_tenant ON governance_rules(tenant_id);
 CREATE INDEX idx_governance_user ON governance_rules(tenant_id, user_id);
 
--- 8. AUDIT LOGS TABLE
-CREATE TABLE audit_logs (
-    log_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id VARCHAR(10) NOT NULL,
-    user_id VARCHAR(10),
-    action VARCHAR(100) NOT NULL,
-    resource_type VARCHAR(50) NOT NULL,
-    resource_id VARCHAR(255),
-    details JSONB,
-    ip_address INET,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (tenant_id) REFERENCES tenants(tenant_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
-);
 
-CREATE INDEX idx_audit_tenant ON audit_logs(tenant_id);
-CREATE INDEX idx_audit_user ON audit_logs(tenant_id, user_id);
-CREATE INDEX idx_audit_created ON audit_logs(created_at);
-CREATE INDEX idx_audit_action ON audit_logs(action);
 
 -- Auto-update trigger function for updated_at columns
 CREATE OR REPLACE FUNCTION update_updated_at_column()

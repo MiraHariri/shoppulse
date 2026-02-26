@@ -56,6 +56,8 @@
   font-size: 12px;
   font-weight: 500;
   text-transform: capitalize;
+  background: #e6e6e6;
+  color: rgb(0, 0, 0);
 }
 
 .role-badge.role-admin {
@@ -68,7 +70,7 @@
   color: #065f46;
 }
 
-.role-badge.role-operations {
+.role-badge.role-ops {
   background-color: #fef3c7;
   color: #92400e;
 }

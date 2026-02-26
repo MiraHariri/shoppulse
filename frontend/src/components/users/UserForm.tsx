@@ -1,4 +1,5 @@
-import { useState, type FormEvent, type ChangeEvent } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect, type FormEvent, type ChangeEvent } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -13,10 +14,13 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-} from '@mui/material';
-import { Close, Visibility, VisibilityOff } from '@mui/icons-material';
-import type { CreateUserData } from '../../types/user.types';
-import { USER_ROLES } from '../../utils/constants';
+  CircularProgress,
+} from "@mui/material";
+import { Close, Visibility, VisibilityOff } from "@mui/icons-material";
+import { useSelector } from "react-redux";
+import type { CreateUserData } from "../../types/user.types";
+import type { RootState } from "../../store";
+import { USER_ROLES } from "../../utils/constants";
 
 interface UserFormProps {
   onSubmit: (userData: CreateUserData) => Promise<void>;
@@ -31,17 +35,21 @@ interface UserFormProps {
  * - Email format validation
  * - Password strength validation (min 8 chars, uppercase, lowercase, numbers)
  * - Submit handler calls createUser action
- * 
+ *
  * Requirements: 9.2, 9.4
  */
 export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  const { roles, loading: rolesLoading } = useSelector(
+    (state: RootState) => state.roles,
+  );
+
   const [formData, setFormData] = useState<CreateUserData>({
-    email: '',
-    password: '',
-    role: USER_ROLES.FINANCE,
+    email: "",
+    password: "",
+    role: "",
   });
 
   const [errors, setErrors] = useState<{
@@ -51,6 +59,18 @@ export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  /**
+   * Set default role when roles are loaded
+   */
+  useEffect(() => {
+    if (roles.length > 0 && !formData.role) {
+      setFormData((prev: any) => ({
+        ...prev,
+        role: roles[0].role,
+      }));
+    }
+  }, [roles, formData.role]);
 
   /**
    * Toggle password visibility
@@ -64,11 +84,11 @@ export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
    */
   const validateEmail = (email: string): string | undefined => {
     if (!email) {
-      return 'Email is required';
+      return "Email is required";
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return 'Invalid email format';
+      return "Invalid email format";
     }
     return undefined;
   };
@@ -79,19 +99,19 @@ export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
    */
   const validatePassword = (password: string): string | undefined => {
     if (!password) {
-      return 'Password is required';
+      return "Password is required";
     }
     if (password.length < 8) {
-      return 'Password must be at least 8 characters';
+      return "Password must be at least 8 characters";
     }
     if (!/[A-Z]/.test(password)) {
-      return 'Password must contain at least one uppercase letter';
+      return "Password must contain at least one uppercase letter";
     }
     if (!/[a-z]/.test(password)) {
-      return 'Password must contain at least one lowercase letter';
+      return "Password must contain at least one lowercase letter";
     }
     if (!/[0-9]/.test(password)) {
-      return 'Password must contain at least one number';
+      return "Password must contain at least one number";
     }
     return undefined;
   };
@@ -100,7 +120,7 @@ export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
    * Handle input field changes
    */
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -150,7 +170,7 @@ export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
       // Form will be closed by parent component on success
     } catch (error) {
       // Error handling is done by parent component
-      console.error('Failed to create user:', error);
+      console.error("Failed to create user:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -166,10 +186,17 @@ export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
       PaperProps={{
         sx: {
           borderRadius: fullScreen ? 0 : 2,
-        }
+        },
       }}
     >
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          pb: 1,
+        }}
+      >
         <Typography variant="h5" component="div" sx={{ fontWeight: 600 }}>
           Add New User
         </Typography>
@@ -186,7 +213,7 @@ export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
 
       <form onSubmit={handleSubmit}>
         <DialogContent dividers>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
               fullWidth
               label="Email"
@@ -205,12 +232,15 @@ export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
             <TextField
               fullWidth
               label="Password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
               onChange={handleChange}
               error={!!errors.password}
-              helperText={errors.password || 'Min 8 chars with uppercase, lowercase, and numbers'}
+              helperText={
+                errors.password ||
+                "Min 8 chars with uppercase, lowercase, and numbers"
+              }
               disabled={isSubmitting}
               autoComplete="new-password"
               required
@@ -237,32 +267,33 @@ export default function UserForm({ onSubmit, onCancel }: UserFormProps) {
               name="role"
               value={formData.role}
               onChange={handleChange}
-              disabled={isSubmitting}
+              disabled={isSubmitting || rolesLoading}
               helperText="Select the role that determines dashboard access permissions"
               required
+              InputProps={{
+                endAdornment: rolesLoading ? (
+                  <InputAdornment position="end">
+                    <CircularProgress size={20} />
+                  </InputAdornment>
+                ) : null,
+              }}
             >
-              <MenuItem value={USER_ROLES.FINANCE}>Finance</MenuItem>
-              <MenuItem value={USER_ROLES.OPERATIONS}>Operations</MenuItem>
-              <MenuItem value={USER_ROLES.MARKETING}>Marketing</MenuItem>
               <MenuItem value={USER_ROLES.ADMIN}>Admin</MenuItem>
+              {roles.map((role) => (
+                <MenuItem key={role.role} value={role.role}>
+                  {role.role}
+                </MenuItem>
+              ))}
             </TextField>
           </Box>
         </DialogContent>
 
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button
-            onClick={onCancel}
-            disabled={isSubmitting}
-            color="inherit"
-          >
+          <Button onClick={onCancel} disabled={isSubmitting} color="inherit">
             Cancel
           </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Creating...' : 'Create User'}
+          <Button type="submit" variant="contained" disabled={isSubmitting}>
+            {isSubmitting ? "Creating..." : "Create User"}
           </Button>
         </DialogActions>
       </form>
