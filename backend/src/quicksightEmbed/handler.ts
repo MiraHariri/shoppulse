@@ -150,11 +150,13 @@ function buildSessionTags(
   tenantId: string,
   region: string | null,
   storeId: string | null,
+  userRole: string | null,
 ): SessionTag[] {
   return [
     { Key: "tenant_id", Value: tenantId },
     { Key: "region", Value: region || "none" },
     { Key: "store_id", Value: storeId || "*" },
+    { Key: "role", Value: userRole || "" },
   ];
 }
 
@@ -190,17 +192,15 @@ export async function generateEmbedUrl(
       context.tenantId,
       userData.region,
       userData.store_id,
+      context.userRole,
     );
     console.log(
-      "Session tags (tenant_id, region, store_id):",
+      "Session tags (tenant_id, region, store_id, context.userRole):",
       JSON.stringify(sessionTags),
     );
 
     // Generate anonymous embed URL with userRole as parameter
-    const embedUrl = await generateAnonymousEmbedUrl(
-      sessionTags,
-      context.userRole,
-    );
+    const embedUrl = await generateAnonymousEmbedUrl(sessionTags);
 
     const embedResponse: EmbedUrlResponse = {
       embedUrl: embedUrl,
@@ -242,7 +242,6 @@ export async function generateEmbedUrl(
  */
 async function generateAnonymousEmbedUrl(
   sessionTags: SessionTag[],
-  userRole: string,
 ): Promise<string> {
   if (!QUICKSIGHT_AWS_ACCOUNT_ID || !QUICKSIGHT_DASHBOARD_ID) {
     throw new Error("QuickSight configuration missing");
@@ -276,7 +275,6 @@ async function generateAnonymousEmbedUrl(
   });
 
   console.log("Generating anonymous embed URL with session tags for RLS");
-  console.log("userRole:", userRole);
 
   const response = await quicksightClient.send(command);
 
