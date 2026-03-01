@@ -4,7 +4,7 @@
  */
 
 import { APIGatewayEvent, LambdaResponse } from './types';
-import { generateEmbedUrl } from './handler';
+import { generateEmbedUrl, generateQEmbedUrl } from './handler';
 
 /**
  * Lambda handler function
@@ -50,6 +50,11 @@ export async function handler(event: APIGatewayEvent): Promise<LambdaResponse> {
       return await generateEmbedUrl(event);
     }
 
+    // Route: GET /dashboards/q-embed-url
+    if (httpMethod === 'GET' && (path === '/dashboards/q-embed-url' || path.includes('q-embed-url'))) {
+      return await generateQEmbedUrl(event);
+    }
+
     // Unknown route
     console.warn(`Route not found: ${httpMethod} ${path}`);
     return {
@@ -84,4 +89,4 @@ export async function handler(event: APIGatewayEvent): Promise<LambdaResponse> {
 }
 
 // Export handler functions for testing
-export { generateEmbedUrl };
+export { generateEmbedUrl, generateQEmbedUrl };

@@ -1,0 +1,13 @@
+{
+  "RowLevelPermissionTagConfiguration": {
+    "Status": "ENABLED",
+    "TagRules": [
+      {
+        "TagKey": "tenant_id",
+        "ColumnName": "tenant_id",
+        "TagMultiValueDelimiter": ",",
+        "MatchAllValue": "*"
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "AwsAccountId": "249759897196",
+  "DataSetId": "YOUR_DATASET_ID",
+  "RowLevelPermissionTagConfiguration": {
+    "Status": "ENABLED",
+    "TagRules": [
+      {
+        "TagKey": "tenant_id",
+        "ColumnName": "tenant_id",
+        "TagMultiValueDelimiter": ",",
+        "MatchAllValue": "*"
+      },
+      {
+        "TagKey": "region",
+        "ColumnName": "region",
+        "TagMultiValueDelimiter": ",",
+        "MatchAllValue": "*"
+      },
+      {
+        "TagKey": "store_id",
+        "ColumnName": "store_id",
+        "TagMultiValueDelimiter": ",",
+        "MatchAllValue": "*"
+      }
+    ]
+  }
+}

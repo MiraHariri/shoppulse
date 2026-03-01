@@ -23,6 +23,7 @@ provider:
     RDS_PASSWORD: ${env:RDS_PASSWORD}
     QUICKSIGHT_AWS_ACCOUNT_ID: ${env:QUICKSIGHT_AWS_ACCOUNT_ID, ''}
     QUICKSIGHT_DASHBOARD_ID: ${env:QUICKSIGHT_DASHBOARD_ID, ''}
+    QUICKSIGHT_Q_TOPIC_ID: ${env:QUICKSIGHT_Q_TOPIC_ID, ''}
   
   # POC: Lambda runs without VPC for simplicity
   # VPC configuration commented out - RDS has public access enabled for POC
@@ -75,7 +76,25 @@ functions:
     description: User management Lambda for ShopPulse Analytics
     reservedConcurrency: 100
     role: ${env:USER_MANAGEMENT_LAMBDA_ROLE_ARN}
-    # No events - API Gateway integration will be done by Terraform
+    events:
+      - httpApi:
+          path: /users
+          method: get
+      - httpApi:
+          path: /users
+          method: post
+      - httpApi:
+          path: /users/{userId}
+          method: get
+      - httpApi:
+          path: /users/{userId}
+          method: put
+      - httpApi:
+          path: /users/{userId}
+          method: delete
+      - httpApi:
+          path: /users/{userId}/role
+          method: put
 
   # QuickSight Embed Lambda
   quicksightEmbed:
@@ -86,7 +105,13 @@ functions:
     memorySize: 256
     timeout: 15
     role: ${env:QUICKSIGHT_EMBED_LAMBDA_ROLE_ARN}
-    # No events - API Gateway integration will be done by Terraform
+    events:
+      - httpApi:
+          path: /dashboards/embed-url
+          method: get
+      - httpApi:
+          path: /dashboards/q-embed-url
+          method: get
 
 # CloudFormation resources
 resources:
@@ -127,3 +152,4 @@ custom:
       - QUICKSIGHT_EMBED_LAMBDA_ROLE_ARN
       - QUICKSIGHT_AWS_ACCOUNT_ID
       - QUICKSIGHT_DASHBOARD_ID
+      - QUICKSIGHT_Q_TOPIC_ID
