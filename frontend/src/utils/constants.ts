@@ -8,11 +8,11 @@ export const AWS_REGION = import.meta.env.VITE_AWS_REGION || 'us-east-1';
 export const USER_ROLES = {
   ADMIN: 'Admin',
   FINANCE: 'Finance',
-  OPERATIONS: 'Operations',
+  OPERATIONS: 'Ops',
   MARKETING: 'Marketing',
 } as const;
 
-export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
+export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES] | string;
 
 // User status
 export const USER_STATUS = {
@@ -26,6 +26,7 @@ export type UserStatus = typeof USER_STATUS[keyof typeof USER_STATUS];
 // API endpoints
 export const API_ENDPOINTS = {
   USERS: '/users',
+  ROLES: '/roles',
   DASHBOARD_EMBED: '/dashboards/embed-url',
   Q_AGENT_EMBED: '/dashboards/q-embed-url',
   GOVERNANCE_RULES: '/governance/rules',
@@ -36,3 +37,14 @@ export const DASHBOARD_REFRESH_INTERVAL = 10 * 60 * 1000;
 
 // Embed URL expiration (15 minutes in milliseconds)
 export const EMBED_URL_EXPIRATION = 15 * 60 * 1000;
+
+// Available metrics for role assignment
+export const AVAILABLE_METRICS = [
+  'Net_Revenue',
+  'Margin',
+  'Fulfillment_SLA',
+  'Campaign_ROI',
+] as const;
+
+export type MetricName = typeof AVAILABLE_METRICS[number];
+

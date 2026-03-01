@@ -21,7 +21,7 @@ export interface User {
   tenant_id: string;
   email: string;
   cognito_user_id: string;
-  role: 'Admin' | 'Finance' | 'Operations' | 'Marketing';
+  role: string;
   region?: string;
   store_id?: string;
   is_tenant_admin: boolean;

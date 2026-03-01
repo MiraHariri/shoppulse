@@ -8,13 +8,13 @@ This implementation plan breaks down the ShopPulse Analytics platform into discr
 2. **Backend Node.js/TypeScript Lambda Functions** - User management and QuickSight embedding
 3. **Frontend React TypeScript Application** - User interface with Redux Toolkit state management
 
-Each task builds on previous work, with property-based tests and unit tests integrated throughout to validate correctness early.
+Each task builds on previous work to deliver incremental functionality.
 
 ## Tasks
 
 - [x] 1. Set up PostgreSQL database schema and infrastructure
   - Create PostgreSQL RDS instance with proper configuration
-  - Run schema creation script with all 8 tables (tenants, users, orders, fulfillment, marketing_campaigns, role_metric_visibility, governance_rules, audit_logs)
+  - Run schema creation script with all 7 tables (tenants, users, orders, fulfillment, marketing_campaigns, role_metric_visibility, governance_rules)
   - Create auto-update trigger function for updated_at columns
   - Set up RDS Proxy for connection pooling
   - Store database credentials in AWS Secrets Manager
@@ -49,16 +49,6 @@ Each task builds on previous work, with property-based tests and unit tests inte
     - Call QuickSight SDK to generate embed URL with 15-minute expiration
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 12.3_
   
-
-
-- [x] 7. Implement audit logging
-  - [x] 7.1 Create audit logging utility module (TypeScript)
-    - Implement logAuditEvent function
-    - Include tenant_id, user_id, action, resource_type, resource_id, details, ip_address
-    - Insert into audit_logs table
-    - _Requirements: 11.5_
-  
-
 
 
 - [x] 9. Set up React TypeScript frontend project
@@ -267,8 +257,4 @@ Each task builds on previous work, with property-based tests and unit tests inte
 - Tasks marked with `*` are optional and can be skipped for faster MVP
 - Each task references specific requirements for traceability
 - Checkpoints ensure incremental validation
-- Property tests validate universal correctness properties (100 iterations each)
-- Unit tests validate specific examples and edge cases
-- Integration tests validate end-to-end flows
-- Performance tests validate scalability and responsiveness
 

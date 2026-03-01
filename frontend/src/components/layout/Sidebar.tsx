@@ -1,7 +1,16 @@
-import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Box, Divider } from '@mui/material';
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Box,
+  Divider,
+} from "@mui/material";
 import { Dashboard, QuestionAnswer } from '@mui/icons-material';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 const DRAWER_WIDTH = 240;
 
@@ -17,10 +26,10 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
 
   const menuItems = [
     {
-      text: 'Dashboard',
+      text: "Dashboard",
       icon: <Dashboard />,
-      path: '/dashboard',
-      roles: ['Admin', 'Finance', 'Operations', 'Marketing']
+      path: "/dashboard",
+      roles: ["Finance", "Ops", "Marketing"],
     },
     {
       text: 'Q Agent',
@@ -30,8 +39,8 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
     }
   ];
 
-  const filteredMenuItems = menuItems.filter(item => 
-    user && item.roles.includes(user.role)
+  const filteredMenuItems = menuItems.filter(
+    (item) => user && (user.role === "Admin" || item.roles.includes(user.role)),
   );
 
   const handleNavigation = (path: string) => {
@@ -43,11 +52,11 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
   };
 
   const drawerContent = (
-    <Box sx={{ overflow: 'auto' }}>
+    <Box sx={{ overflow: "auto" }}>
       <List>
         {filteredMenuItems.map((item) => {
           const isActive = location.pathname === item.path;
-          
+
           return (
             <ListItem key={item.text} disablePadding>
               <ListItemButton
@@ -56,27 +65,27 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
                   mx: 1,
                   my: 0.5,
                   borderRadius: 1,
-                  bgcolor: isActive ? '#EEF2FF' : 'transparent',
-                  color: isActive ? '#6366F1' : '#1F2937',
-                  '&:hover': {
-                    bgcolor: isActive ? '#EEF2FF' : '#F3F4F6'
+                  bgcolor: isActive ? "#EEF2FF" : "transparent",
+                  color: isActive ? "#6366F1" : "#1F2937",
+                  "&:hover": {
+                    bgcolor: isActive ? "#EEF2FF" : "#F3F4F6",
                   },
-                  transition: 'all 0.2s'
+                  transition: "all 0.2s",
                 }}
               >
                 <ListItemIcon
                   sx={{
-                    color: isActive ? '#6366F1' : '#6B7280',
-                    minWidth: 40
+                    color: isActive ? "#6366F1" : "#6B7280",
+                    minWidth: 40,
                   }}
                 >
                   {item.icon}
                 </ListItemIcon>
-                <ListItemText 
+                <ListItemText
                   primary={item.text}
                   primaryTypographyProps={{
                     fontWeight: isActive ? 600 : 400,
-                    fontSize: '0.95rem'
+                    fontSize: "0.95rem",
                   }}
                 />
               </ListItemButton>
@@ -99,13 +108,13 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
           keepMounted: true, // Better open performance on mobile
         }}
         sx={{
-          display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': {
+          display: { xs: "block", md: "none" },
+          "& .MuiDrawer-paper": {
             width: DRAWER_WIDTH,
-            boxSizing: 'border-box',
-            bgcolor: 'white',
-            borderRight: '1px solid #E5E7EB',
-            pt: 8
+            boxSizing: "border-box",
+            bgcolor: "white",
+            borderRight: "1px solid #E5E7EB",
+            pt: 8,
           },
         }}
       >
@@ -116,15 +125,15 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
       <Drawer
         variant="permanent"
         sx={{
-          display: { xs: 'none', md: 'block' },
+          display: { xs: "none", md: "block" },
           width: DRAWER_WIDTH,
           flexShrink: 0,
-          '& .MuiDrawer-paper': {
+          "& .MuiDrawer-paper": {
             width: DRAWER_WIDTH,
-            boxSizing: 'border-box',
-            bgcolor: 'white',
-            borderRight: '1px solid #E5E7EB',
-            pt: 8
+            boxSizing: "border-box",
+            bgcolor: "white",
+            borderRight: "1px solid #E5E7EB",
+            pt: 8,
           },
         }}
       >

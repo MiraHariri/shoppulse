@@ -114,6 +114,8 @@
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
+  background: #e6e6e6;
+  color: rgb(0, 0, 0);
 }
 
 .role-badge.role-admin {
@@ -126,7 +128,7 @@
   color: #065f46;
 }
 
-.role-badge.role-operations {
+.role-badge.role-ops {
   background: #fef3c7;
   color: #92400e;
 }

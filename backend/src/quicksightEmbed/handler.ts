@@ -2,6 +2,7 @@
  * QuickSight Embed Lambda Handler
  * Generates embed URLs using anonymous embedding with session tags
  */
+import { query } from "../shared/db";
 
 import {
   QuickSightClient,
@@ -115,12 +116,60 @@ function errorResponse(
   };
 }
 
+/*
+ * Retrieves user data including region and store_id from PostgreSQL
+ */
+async function getUserData(
+  tenantId: string,
+  userId: string,
+): Promise<{ region: string | null; store_id: string | null }> {
+  const result = await query<{
+    region: string | null;
+    store_id: string | null;
+  }>(
+    "SELECT region, store_id FROM users WHERE tenant_id = $1 AND cognito_user_id = $2",
+    [tenantId, userId],
+  );
+
+  if (result.rows.length === 0) {
+    console.warn(
+      `User not found in database: tenant_id=${tenantId}, cognito_user_id=${userId}`,
+    );
+    return { region: null, store_id: null };
+  }
+
+  return result.rows[0];
+}
+
+/**
+ * Builds session tags from tenant context and user data
+
+
+
 /**
  * Builds session tags from tenant context
  * Used for anonymous embedding with RLS
  * Includes: tenant_id only
  */
-function buildSessionTags(tenantId: string): SessionTag[] {
+function buildSessionTags(
+  tenantId: string,
+  region: string | null,
+  storeId: string | null,
+  userRole: string | null,
+): SessionTag[] {
+  return [
+    { Key: "tenant_id", Value: tenantId },
+    { Key: "region", Value: region || "none" },
+    { Key: "store_id", Value: storeId || "*" },
+    { Key: "role", Value: userRole || "" },
+  ];
+}
+
+
+function buildSessionTagsA(
+  tenantId: string,
+ 
+): SessionTag[] {
   return [
     { Key: "tenant_id", Value: tenantId },
   ];
@@ -147,14 +196,26 @@ export async function generateEmbedUrl(
 
     const context = getRequestContext(event);
 
-    // Build session tags (tenant_id only)
-    const sessionTags = buildSessionTags(context.tenantId);
+     // Retrieve user data (region and store_id) from users table
+
+    const userData = await getUserData(context.tenantId, context.userId);
     console.log(
-      "Session tags (tenant_id):",
+      `Retrieved user data: region=${userData.region}, store_id=${userData.store_id}`,
+    );
+
+    // Build session tags (tenant_id, region, store_id from user table)
+    const sessionTags = buildSessionTags(
+      context.tenantId,
+      userData.region,
+      userData.store_id,
+      context.userRole,
+    );
+    console.log(
+      "Session tags (tenant_id, region, store_id, context.userRole):",
       JSON.stringify(sessionTags),
     );
 
-    // Generate anonymous embed URL
+    // Generate anonymous embed URL with userRole as parameter
     const embedUrl = await generateAnonymousEmbedUrl(sessionTags);
 
     const embedResponse: EmbedUrlResponse = {
@@ -213,7 +274,7 @@ export async function generateQEmbedUrl(
     const context = getRequestContext(event);
 
     // Build session tags (tenant_id only)
-    const sessionTags = buildSessionTags(context.tenantId);
+    const sessionTags = buildSessionTagsA(context.tenantId);
     console.log(
       "Session tags for Q (tenant_id):",
       JSON.stringify(sessionTags),

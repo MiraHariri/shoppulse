@@ -1,5 +1,5 @@
 import { AppBar, Toolbar, Typography, Box, IconButton, Menu, MenuItem, Divider, useMediaQuery, useTheme } from '@mui/material';
-import { AccountCircle, Logout, Settings, People, Menu as MenuIcon } from '@mui/icons-material';
+import { AccountCircle, Logout, AdminPanelSettings, People, Menu as MenuIcon } from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -33,9 +33,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
     navigate('/users');
   };
 
-  const handleNavigateToSettings = () => {
+  const handleNavigateToRoles = () => {
     handleAccountClose();
-    navigate('/settings');
+    navigate('/roles');
   };
 
   // Check if user has access to management features
@@ -136,9 +136,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   <People sx={{ mr: 1, fontSize: 20 }} />
                   Users
                 </MenuItem>,
-                <MenuItem key="settings" onClick={handleNavigateToSettings}>
-                  <Settings sx={{ mr: 1, fontSize: 20 }} />
-                  Settings
+                <MenuItem key="roles" onClick={handleNavigateToRoles}>
+                  <AdminPanelSettings sx={{ mr: 1, fontSize: 20 }} />
+                  Roles
                 </MenuItem>,
                 <Divider key="divider" sx={{ my: 1 }} />
               ]}
