@@ -27,6 +27,7 @@ export type UserStatus = typeof USER_STATUS[keyof typeof USER_STATUS];
 export const API_ENDPOINTS = {
   USERS: '/users',
   DASHBOARD_EMBED: '/dashboards/embed-url',
+  Q_AGENT_EMBED: '/dashboards/q-embed-url',
   GOVERNANCE_RULES: '/governance/rules',
 } as const;
 

@@ -1,5 +1,5 @@
 import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Box, Divider } from '@mui/material';
-import { Dashboard } from '@mui/icons-material';
+import { Dashboard, QuestionAnswer } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -20,6 +20,12 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
       text: 'Dashboard',
       icon: <Dashboard />,
       path: '/dashboard',
+      roles: ['Admin', 'Finance', 'Operations', 'Marketing']
+    },
+    {
+      text: 'Q Agent',
+      icon: <QuestionAnswer />,
+      path: '/q-agent',
       roles: ['Admin', 'Finance', 'Operations', 'Marketing']
     }
   ];

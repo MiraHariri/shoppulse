@@ -11,6 +11,7 @@ import LoginForm from './components/auth/LoginForm';
 import DashboardPage from './pages/DashboardPage';
 import UsersPage from './pages/UsersPage';
 import SettingsPage from './pages/SettingsPage';
+import { QAgentPage } from './pages/QAgentPage';
 
 // Configure Amplify on app initialization
 configureAmplify();
@@ -88,6 +89,7 @@ function AppRoutes() {
       >
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/q-agent" element={<QAgentPage />} />
         <Route path="/users" element={<UsersPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>

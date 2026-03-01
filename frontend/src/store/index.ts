@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './authSlice';
 import userReducer from './userSlice';
 import dashboardReducer from './dashboardSlice';
+import qAgentReducer from './qAgentSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     users: userReducer,
     dashboard: dashboardReducer,
+    qAgent: qAgentReducer,
   },
 });
 
